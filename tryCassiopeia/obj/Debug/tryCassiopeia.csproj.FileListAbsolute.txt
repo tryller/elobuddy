@@ -1,0 +1,10 @@
+D:\League of Legends\EloBuddy\Scripts\Development\tryCassiopeia\bin\Debug\tryCassiopeia.exe.config
+D:\League of Legends\EloBuddy\Scripts\Development\tryCassiopeia\bin\Debug\tryCassiopeia.exe
+D:\League of Legends\EloBuddy\Scripts\Development\tryCassiopeia\bin\Debug\tryCassiopeia.pdb
+D:\League of Legends\EloBuddy\Scripts\Development\tryCassiopeia\bin\Debug\EloBuddy.dll
+D:\League of Legends\EloBuddy\Scripts\Development\tryCassiopeia\bin\Debug\EloBuddy.SDK.dll
+D:\League of Legends\EloBuddy\Scripts\Development\tryCassiopeia\bin\Debug\SharpDX.dll
+D:\League of Legends\EloBuddy\Scripts\Development\tryCassiopeia\bin\Debug\SharpDX.Direct3D9.dll
+D:\League of Legends\EloBuddy\Scripts\Development\tryCassiopeia\bin\Debug\Newtonsoft.Json.dll
+D:\League of Legends\EloBuddy\Scripts\Development\tryCassiopeia\obj\Debug\tryCassiopeia.exe
+D:\League of Legends\EloBuddy\Scripts\Development\tryCassiopeia\obj\Debug\tryCassiopeia.pdb
