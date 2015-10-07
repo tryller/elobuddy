@@ -41,14 +41,6 @@ namespace tryCassiopeia
 
         private static void OnComplete(EventArgs args)
         {
-            if (myHero.ChampionName != "Cassiopeia")
-                return;
-
-            Q = new Spell.Skillshot(SpellSlot.Q, Q.Range, SkillShotType.Circular, 750, int.MaxValue, 150);
-            W = new Spell.Skillshot(SpellSlot.W, W.Range, SkillShotType.Circular, 250, 2500, 250);
-            E = new Spell.Targeted(SpellSlot.E, E.Range);
-            R = new Spell.Skillshot(SpellSlot.R, R.Range, SkillShotType.Cone, (int)0.6f, int.MaxValue, (int)(80 * Math.PI / 180));
-
             mainMenu = MainMenu.AddMenu("tryCassiopeia", "tryCassiopeia");
             mainMenu.AddGroupLabel("tryCassiopeia");
             mainMenu.AddLabel("Made by Tryller");
@@ -79,6 +71,11 @@ namespace tryCassiopeia
             ksMenu = mainMenu.AddSubMenu("Kill Steal Menu", "ksMenu");
             ksMenu.Add("useIgnite", new CheckBox("Use Q"));
 
+            Q = new Spell.Skillshot(SpellSlot.Q, Q.Range, SkillShotType.Circular, 750, int.MaxValue, 150);
+            W = new Spell.Skillshot(SpellSlot.W, W.Range, SkillShotType.Circular, 250, 2500, 250);
+            E = new Spell.Targeted(SpellSlot.E, E.Range);
+            R = new Spell.Skillshot(SpellSlot.R, R.Range, SkillShotType.Cone, (int)0.6f, int.MaxValue, (int)(80 * Math.PI / 180));
+
             Ignite = new Spell.Targeted(myHero.GetSpellSlotFromName("summonerdot"), 600);
             Interrupter.OnInterruptableSpell += OnInterruptableSpell;
             Game.OnTick += OnTick;
@@ -86,7 +83,7 @@ namespace tryCassiopeia
 
         private static void OnInterruptableSpell(Obj_AI_Base sender, Interrupter.InterruptableSpellEventArgs e)
         {
-            if (myHero.ChampionName != "Cassiopeia")
+            if (Player.Instance.Hero != Champion.Cassiopeia)
                 return;
 
             if (ultimateMenu["ultimateInterruptt"].Cast<CheckBox>().CurrentValue)
@@ -101,7 +98,7 @@ namespace tryCassiopeia
 
         private static void OnTick(EventArgs args)
         {
-            if (myHero.ChampionName != "Cassiopeia")
+            if (Player.Instance.Hero != Champion.Cassiopeia)
                 return;
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
