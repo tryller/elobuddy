@@ -15,7 +15,7 @@ namespace tryCassiopeia
 {
     class Program
     {
-        public static Menu mainMenu, comboMenu, harassMenu, ultimateMenu;
+        public static Menu mainMenu, comboMenu, harassMenu, ultimateMenu, laneClearMenu;
         public static Spell.Skillshot Q;
         public static Spell.Skillshot W;
         public static Spell.Targeted E;
@@ -35,11 +35,6 @@ namespace tryCassiopeia
 
         private static void OnComplete(EventArgs args)
         {
-            /*
-            ItemManager.Init();
-            TargetSelector2.init();
-            */
-
             if (myHero.ChampionName != "Cassiopeia")
                 return;
 
@@ -51,9 +46,6 @@ namespace tryCassiopeia
             mainMenu = MainMenu.AddMenu("tryCassiopeia", "tryCassiopeia");
             mainMenu.AddGroupLabel("tryCassiopeia");
             mainMenu.AddLabel("Made by Tryller");
-            mainMenu.AddSeparator();
-            mainMenu.AddLabel("Changelog:");
-            mainMenu.AddLabel("v1.0.0 - Initial release");
 
             comboMenu = mainMenu.AddSubMenu("Combo Menu", "comboMenu");
             comboMenu.AddGroupLabel("Combo Menu");
@@ -65,6 +57,12 @@ namespace tryCassiopeia
             harassMenu.Add("useQ", new CheckBox("Use Q"));
             harassMenu.Add("useE", new CheckBox("Use E"));
             harassMenu.Add("useQToggle", new KeyBind("Q Toggle Harass", false, KeyBind.BindTypes.PressToggle, 'A'));
+
+            laneClearMenu = mainMenu.AddSubMenu("Lane Clear Menu", "laneClearMenu");
+            laneClearMenu.Add("useQ", new CheckBox("Use Q"));
+            laneClearMenu.Add("useW", new CheckBox("Use W"));
+            laneClearMenu.Add("useE", new CheckBox("Use E"));
+            laneClearMenu.Add("laneMana", new Slider("Minimun mana for Lane Clear", 0, 0, 100));
 
             ultimateMenu = mainMenu.AddSubMenu("Ultimate", "ultimateMenu");
             ultimateMenu.Add("useAutoUlt", new CheckBox("Use Auto-Ultimate"));
@@ -97,58 +95,104 @@ namespace tryCassiopeia
                 return;
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
-            {
-                var target = TargetSelector.GetTarget(850, DamageType.Magical);
-                {
-                    if (Q.IsReady() && comboMenu["useQ"].Cast<CheckBox>().CurrentValue && target.IsValidTarget(Q.Range))
-                        Q.Cast(target);
-
-                    if (E.IsReady() && comboMenu["useE"].Cast<CheckBox>().CurrentValue && target.IsValidTarget(E.Range) && target != null && target.IsVisible && !target.IsDead)
-                    {
-                        if ((target.HasBuffOfType(BuffType.Poison)))
-                        {
-                            if (target.IsValidTarget(E.Range))
-                                E.Cast(target);
-                        }
-                    }
-
-                    if (W.IsReady() && target.IsValidTarget(W.Range) && comboMenu["useW"].Cast<CheckBox>().CurrentValue && Environment.TickCount > LastQ + Q.CastDelay * 1000)
-                        W.Cast(target);
-                }
-            }
+                OnCombo();
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
-            {
-                var target = TargetSelector.GetTarget(850, DamageType.Magical);
-                {
-                    if (E.IsReady() && harassMenu["useE"].Cast<CheckBox>().CurrentValue && target.IsValidTarget(E.Range) && target != null && target.IsVisible && !target.IsDead)
-                    {
-                        if ((target.HasBuffOfType(BuffType.Poison)))
-                        {
-                            if (target.IsValidTarget(E.Range))
-                                E.Cast(target);
-                        }
-                    }
-
-                    if (Q.IsReady() && harassMenu["useQ"].Cast<CheckBox>().CurrentValue && target.IsValidTarget(Q.Range))
-                        Q.Cast(target);
-                }
-            }
+                OnHarass();
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit))
+                OnLastHit();
+
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
+                OnLaneclear();
+
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
             {
-                foreach (var minion in ObjectManager.Get<Obj_AI_Minion>().Where(x => E.IsInRange(x)
-                    && !x.IsDead
-                    && x.IsEnemy
-                    && x.HasBuffOfType(BuffType.Poison)
-                    && x.Health + 5 < Extensions.GetDamage(SpellSlot.E, x)))
-                {
-                    E.Cast(minion);
-                }
+                //JungleClear();
             }
 
             OnUltimate();
             OnToggluseE();
+        }
+
+        private static void OnCombo()
+        {
+            var target = TargetSelector.GetTarget(850, DamageType.Magical);
+            {
+                if (Q.IsReady() && comboMenu["useQ"].Cast<CheckBox>().CurrentValue && target.IsValidTarget(Q.Range))
+                    Q.Cast(target);
+
+                if (E.IsReady() && comboMenu["useE"].Cast<CheckBox>().CurrentValue && target.IsValidTarget(E.Range) && target != null && target.IsVisible && !target.IsDead)
+                {
+                    if ((target.HasBuffOfType(BuffType.Poison)))
+                    {
+                        if (target.IsValidTarget(E.Range))
+                            E.Cast(target);
+                    }
+                }
+
+                if (W.IsReady() && target.IsValidTarget(W.Range) && comboMenu["useW"].Cast<CheckBox>().CurrentValue && Environment.TickCount > LastQ + Q.CastDelay * 1000)
+                    W.Cast(target);
+            }
+        }
+
+        private static void OnHarass()
+        {
+            var target = TargetSelector.GetTarget(850, DamageType.Magical);
+            {
+                if (E.IsReady() && harassMenu["useE"].Cast<CheckBox>().CurrentValue && target.IsValidTarget(E.Range) && target != null && target.IsVisible && !target.IsDead)
+                {
+                    if ((target.HasBuffOfType(BuffType.Poison)))
+                    {
+                        if (target.IsValidTarget(E.Range))
+                            E.Cast(target);
+                    }
+                }
+
+                if (Q.IsReady() && harassMenu["useQ"].Cast<CheckBox>().CurrentValue && target.IsValidTarget(Q.Range))
+                    Q.Cast(target);
+            }
+        }
+
+        private static void OnLastHit()
+        {
+            foreach (var minion in ObjectManager.Get<Obj_AI_Minion>().Where(x => E.IsInRange(x)
+                && !x.IsDead
+                && x.IsEnemy
+                && x.HasBuffOfType(BuffType.Poison)
+                && x.Health + 5 < Extensions.GetDamage(SpellSlot.E, x)))
+            {
+                E.Cast(minion);
+            }
+        }
+
+        private static void OnLaneclear()
+        {
+            var laneclearQ = laneClearMenu["useQ"].Cast<CheckBox>().CurrentValue;
+            var laneclearW = laneClearMenu["useW"].Cast<CheckBox>().CurrentValue;
+            var laneclearE = laneClearMenu["useE"].Cast<CheckBox>().CurrentValue;
+            var laneclearMinMana = laneClearMenu["laneMana"].Cast<Slider>().CurrentValue;
+
+            Obj_AI_Base minion =
+                EntityManager.GetLaneMinions(
+                    EntityManager.UnitTeam.Enemy,
+                    myHero.Position.To2D(),
+                    600,
+                    true).FirstOrDefault();
+            if (minion != null && Player.Instance.ManaPercent > laneclearMinMana)
+            {
+                if (laneclearQ && Q.IsReady())
+                {
+                    var Qpred = Q.GetPrediction(minion);
+                    Q.Cast(Qpred.UnitPosition);
+                }
+
+                if (laneclearW && W.IsReady())
+                    W.Cast(minion);
+
+                if (laneclearE && E.IsReady() && minion.HasBuffOfType(BuffType.Poison))
+                    E.Cast(minion);
+            }
         }
 
         public static void OnToggluseE()
