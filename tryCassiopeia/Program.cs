@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*
+    v1.1.1 - Add ignite if enemy is killable.
+    v1.1.0 - Add lane clear.
+    v1.0.0 - Initial Release.
+*/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,17 +21,17 @@ namespace tryCassiopeia
 {
     class Program
     {
-        public static Menu mainMenu, comboMenu, harassMenu, ultimateMenu, laneClearMenu;
+        public static Menu mainMenu, comboMenu, harassMenu, ultimateMenu, laneClearMenu, ksMenu;
         public static Spell.Skillshot Q;
         public static Spell.Skillshot W;
         public static Spell.Targeted E;
         public static Spell.Skillshot R;
+        public static Spell.Targeted Ignite;
 
         private static long LastQ = 0;
         private static long LastE = 0;
 
         private static AIHeroClient _target;
-
         public static AIHeroClient myHero { get { return ObjectManager.Player; } }
 
         static void Main(string[] args)
@@ -53,6 +59,12 @@ namespace tryCassiopeia
             comboMenu.Add("useW", new CheckBox("Use W"));
             comboMenu.Add("useE", new CheckBox("Use E"));
 
+            ultimateMenu = mainMenu.AddSubMenu("Ultimate", "ultimateMenu");
+            ultimateMenu.Add("useAutoUlt", new CheckBox("Use Auto-Ultimate"));
+            ultimateMenu.Add("ultimateInterrupt", new CheckBox("Use (R) to Interrupt Spells"));
+            ultimateMenu.AddSeparator();
+            ultimateMenu.Add("minR", new Slider("Minimum enemies to cast (R)", 2, 1, 5));
+
             harassMenu = mainMenu.AddSubMenu("Harass Menu", "harassMenu");
             harassMenu.Add("useQ", new CheckBox("Use Q"));
             harassMenu.Add("useE", new CheckBox("Use E"));
@@ -64,12 +76,10 @@ namespace tryCassiopeia
             laneClearMenu.Add("useE", new CheckBox("Use E"));
             laneClearMenu.Add("laneMana", new Slider("Minimun mana for Lane Clear", 0, 0, 100));
 
-            ultimateMenu = mainMenu.AddSubMenu("Ultimate", "ultimateMenu");
-            ultimateMenu.Add("useAutoUlt", new CheckBox("Use Auto-Ultimate"));
-            ultimateMenu.Add("ultimateInterrupt", new CheckBox("Use (R) to Interrupt Spells"));
-            ultimateMenu.AddSeparator();
-            ultimateMenu.Add("minR", new Slider("Minimum enemies to cast (R)", 2, 1, 5));
+            ksMenu = mainMenu.AddSubMenu("Kill Steal Menu", "ksMenu");
+            ksMenu.Add("useIgnite", new CheckBox("Use Q"));
 
+            Ignite = new Spell.Targeted(myHero.GetSpellSlotFromName("summonerdot"), 600);
             Interrupter.OnInterruptableSpell += OnInterruptableSpell;
             Game.OnTick += OnTick;
         }
@@ -113,6 +123,7 @@ namespace tryCassiopeia
 
             OnUltimate();
             OnToggluseE();
+            OnIgnite();
         }
 
         private static void OnCombo()
@@ -195,7 +206,7 @@ namespace tryCassiopeia
             }
         }
 
-        public static void OnToggluseE()
+        private static void OnToggluseE()
         {
             var target = TargetSelector.GetTarget(850, DamageType.Magical);
             {
@@ -204,7 +215,7 @@ namespace tryCassiopeia
             }
         }
 
-        public static void OnUltimate()
+        private static void OnUltimate()
         {
             var target = TargetSelector.GetTarget(500, DamageType.Magical);
             var castPred = R.GetPrediction(target);
@@ -220,6 +231,16 @@ namespace tryCassiopeia
                     }
                 }
             }
+        }
+
+        private static void OnIgnite()
+        {
+            if (myHero.IsDead || !Ignite.IsReady() || !ksMenu["useIgnite"].Cast<CheckBox>().CurrentValue)
+                return;
+
+            var target = TargetSelector.GetTarget(850, DamageType.Magical);
+            if (target.IsValidTarget(Ignite.Range) && target.Health < myHero.GetSummonerSpellDamage(target, DamageLibrary.SummonerSpells.Ignite))
+                Ignite.Cast(target);
         }
     }
 }
