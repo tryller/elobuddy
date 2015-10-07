@@ -143,18 +143,12 @@ namespace tryCassiopeia
         {
             var target = myTarget.GetTarget(500, DamageType.Magical);
             var castPred = Program.R.GetPrediction(target);
+
+            foreach (var enemy in ObjectManager.Get<AIHeroClient>().Where(enemy => enemy.Distance(_Player) <= Program.R.Range))
             {
+                if (enemy.CountEnemiesInRange(500) >= Program.comboMenu["minR"].Cast<Slider>().CurrentValue && Program.comboMenu["useAutoUlt"].Cast<CheckBox>().CurrentValue && enemy.IsFacing(ObjectManager.Player))
                 {
-                    foreach (
-                        var enemy in
-                            ObjectManager.Get<AIHeroClient>()
-                                .Where(enemy => enemy.Distance(_Player) <= Program.R.Range))
-                    {
-                        if (enemy.CountEnemiesInRange(500) >= Program.comboMenu["minR"].Cast<Slider>().CurrentValue && Program.comboMenu["useAutoUlt"].Cast<CheckBox>().CurrentValue && enemy.IsFacing(ObjectManager.Player))
-                        {
-                            Program.R.Cast(target.Position);
-                        }
-                    }
+                    Program.R.Cast(target.Position);
                 }
             }
         }
