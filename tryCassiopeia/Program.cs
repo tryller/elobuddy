@@ -19,9 +19,9 @@ using EloBuddy.SDK.Rendering;
 
 namespace tryCassiopeia
 {
-    class Program
+    internal class Program
     {
-        public static Menu mainMenu, comboMenu, harassMenu, ultimateMenu, laneClearMenu, ksMenu;
+        public static Menu defaultMenu, comboMenu, harassMenu, laneClearMenu, ksMenu;
         public static Spell.Skillshot Q;
         public static Spell.Skillshot W;
         public static Spell.Targeted E;
@@ -31,62 +31,56 @@ namespace tryCassiopeia
         private static long LastQ = 0;
         private static long LastE = 0;
 
-        private static AIHeroClient _target;
-        public static AIHeroClient myHero { get { return ObjectManager.Player; } }
-
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Loading.OnLoadingComplete += OnComplete;
         }
 
         private static void OnComplete(EventArgs args)
         {
-            mainMenu = MainMenu.AddMenu("tryCassiopeia", "tryCassiopeia");
-            mainMenu.AddGroupLabel("tryCassiopeia");
-            mainMenu.AddLabel("Made by Tryller");
+            if (Player.Instance.Hero != Champion.Cassiopeia)
+                return;
 
-            comboMenu = mainMenu.AddSubMenu("Combo Menu", "comboMenu");
-            comboMenu.AddGroupLabel("Combo Menu");
+            Bootstrap.Init(null);
+            myTarget.init();
+            Q = new Spell.Skillshot(SpellSlot.Q, 850, SkillShotType.Circular, 750, int.MaxValue, 150);
+            W = new Spell.Skillshot(SpellSlot.W, 850, SkillShotType.Circular, 250, 2500, 250);
+            E = new Spell.Targeted(SpellSlot.E, 700);
+            R = new Spell.Skillshot(SpellSlot.R, 825, SkillShotType.Cone, (int)0.6f, int.MaxValue, (int)(80 * Math.PI / 180));
+
+
+            defaultMenu = MainMenu.AddMenu("Cassiopeia", "tryCassiopeia");
+            comboMenu = defaultMenu.AddSubMenu("Combo Menu", "comboMenu");
             comboMenu.Add("useQ", new CheckBox("Use Q"));
             comboMenu.Add("useW", new CheckBox("Use W"));
             comboMenu.Add("useE", new CheckBox("Use E"));
+            comboMenu.AddSeparator();
+            comboMenu.Add("useAutoUlt", new CheckBox("Use Auto-Ultimate"));
+            comboMenu.Add("ultimateInterrupt", new CheckBox("Use (R) to Interrupt Spells"));
+            comboMenu.Add("minR", new Slider("Minimum enemies to cast (R)", 2, 1, 5));
 
-            ultimateMenu = mainMenu.AddSubMenu("Ultimate", "ultimateMenu");
-            ultimateMenu.Add("useAutoUlt", new CheckBox("Use Auto-Ultimate"));
-            ultimateMenu.Add("ultimateInterrupt", new CheckBox("Use (R) to Interrupt Spells"));
-            ultimateMenu.AddSeparator();
-            ultimateMenu.Add("minR", new Slider("Minimum enemies to cast (R)", 2, 1, 5));
-
-            harassMenu = mainMenu.AddSubMenu("Harass Menu", "harassMenu");
+            harassMenu = defaultMenu.AddSubMenu("Harass Menu", "harassMenu");
             harassMenu.Add("useQ", new CheckBox("Use Q"));
             harassMenu.Add("useE", new CheckBox("Use E"));
             harassMenu.Add("useQToggle", new KeyBind("Q Toggle Harass", false, KeyBind.BindTypes.PressToggle, 'A'));
 
-            laneClearMenu = mainMenu.AddSubMenu("Lane Clear Menu", "laneClearMenu");
+            laneClearMenu = defaultMenu.AddSubMenu("Lane Clear Menu", "laneClearMenu");
             laneClearMenu.Add("useQ", new CheckBox("Use Q"));
             laneClearMenu.Add("useW", new CheckBox("Use W"));
             laneClearMenu.Add("useE", new CheckBox("Use E"));
             laneClearMenu.Add("laneMana", new Slider("Minimun mana for Lane Clear", 0, 0, 100));
 
-            ksMenu = mainMenu.AddSubMenu("Kill Steal Menu", "ksMenu");
+            ksMenu = defaultMenu.AddSubMenu("Kill Steal Menu", "ksMenu");
             ksMenu.Add("useIgnite", new CheckBox("Use Q"));
 
-            Q = new Spell.Skillshot(SpellSlot.Q, Q.Range, SkillShotType.Circular, 750, int.MaxValue, 150);
-            W = new Spell.Skillshot(SpellSlot.W, W.Range, SkillShotType.Circular, 250, 2500, 250);
-            E = new Spell.Targeted(SpellSlot.E, E.Range);
-            R = new Spell.Skillshot(SpellSlot.R, R.Range, SkillShotType.Cone, (int)0.6f, int.MaxValue, (int)(80 * Math.PI / 180));
-
-            Ignite = new Spell.Targeted(myHero.GetSpellSlotFromName("summonerdot"), 600);
+            Ignite = new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("summonerdot"), 600);
             Interrupter.OnInterruptableSpell += OnInterruptableSpell;
-            Game.OnTick += OnTick;
+            Game.OnTick += Game_OnTick;
         }
 
         private static void OnInterruptableSpell(Obj_AI_Base sender, Interrupter.InterruptableSpellEventArgs e)
         {
-            if (Player.Instance.Hero != Champion.Cassiopeia)
-                return;
-
-            if (ultimateMenu["ultimateInterruptt"].Cast<CheckBox>().CurrentValue)
+            if (comboMenu["ultimateInterruptt"].Cast<CheckBox>().CurrentValue)
             {
                 if (sender.IsValidTarget(R.Range))
                 {
@@ -96,148 +90,42 @@ namespace tryCassiopeia
             }
         }
 
-        private static void OnTick(EventArgs args)
+        private static void Game_OnTick(EventArgs args)
         {
-            if (Player.Instance.Hero != Champion.Cassiopeia)
-                return;
-
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
-                OnCombo();
+            {
+                Modes.Combo();
+            }
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
-                OnHarass();
+            {
+                Modes.Harass();
+            }
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit))
-                OnLastHit();
+            {
+                Modes.LastHit();
+            }
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
-                OnLaneclear();
+            {
+                Modes.LaneClear();
+            }
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
             {
                 //JungleClear();
             }
 
-            OnUltimate();
-            OnToggluseE();
-            OnIgnite();
-        }
-
-        private static void OnCombo()
-        {
-            var target = TargetSelector.GetTarget(850, DamageType.Magical);
-            {
-                if (Q.IsReady() && comboMenu["useQ"].Cast<CheckBox>().CurrentValue && target.IsValidTarget(Q.Range))
-                    Q.Cast(target);
-
-                if (E.IsReady() && comboMenu["useE"].Cast<CheckBox>().CurrentValue && target.IsValidTarget(E.Range) && target != null && target.IsVisible && !target.IsDead)
-                {
-                    if ((target.HasBuffOfType(BuffType.Poison)))
-                    {
-                        if (target.IsValidTarget(E.Range))
-                            E.Cast(target);
-                    }
-                }
-
-                if (W.IsReady() && target.IsValidTarget(W.Range) && comboMenu["useW"].Cast<CheckBox>().CurrentValue && Environment.TickCount > LastQ + Q.CastDelay * 1000)
-                    W.Cast(target);
+            {//Ult control
+                Modes.Ultimate();
             }
-        }
-
-        private static void OnHarass()
-        {
-            var target = TargetSelector.GetTarget(850, DamageType.Magical);
-            {
-                if (E.IsReady() && harassMenu["useE"].Cast<CheckBox>().CurrentValue && target.IsValidTarget(E.Range) && target != null && target.IsVisible && !target.IsDead)
-                {
-                    if ((target.HasBuffOfType(BuffType.Poison)))
-                    {
-                        if (target.IsValidTarget(E.Range))
-                            E.Cast(target);
-                    }
-                }
-
-                if (Q.IsReady() && harassMenu["useQ"].Cast<CheckBox>().CurrentValue && target.IsValidTarget(Q.Range))
-                    Q.Cast(target);
+            {//Toggle harass
+                Modes.ToggleHarass();
             }
-        }
-
-        private static void OnLastHit()
-        {
-            foreach (var minion in ObjectManager.Get<Obj_AI_Minion>().Where(x => E.IsInRange(x)
-                && !x.IsDead
-                && x.IsEnemy
-                && x.HasBuffOfType(BuffType.Poison)
-                && x.Health + 5 < Extensions.GetDamage(SpellSlot.E, x)))
-            {
-                E.Cast(minion);
+            {//ignite
+                Modes.AutoIgnite();
             }
-        }
-
-        private static void OnLaneclear()
-        {
-            var laneclearQ = laneClearMenu["useQ"].Cast<CheckBox>().CurrentValue;
-            var laneclearW = laneClearMenu["useW"].Cast<CheckBox>().CurrentValue;
-            var laneclearE = laneClearMenu["useE"].Cast<CheckBox>().CurrentValue;
-            var laneclearMinMana = laneClearMenu["laneMana"].Cast<Slider>().CurrentValue;
-
-            Obj_AI_Base minion =
-                EntityManager.GetLaneMinions(
-                    EntityManager.UnitTeam.Enemy,
-                    myHero.Position.To2D(),
-                    600,
-                    true).FirstOrDefault();
-            if (minion != null && Player.Instance.ManaPercent > laneclearMinMana)
-            {
-                if (laneclearQ && Q.IsReady())
-                {
-                    var Qpred = Q.GetPrediction(minion);
-                    Q.Cast(Qpred.UnitPosition);
-                }
-
-                if (laneclearW && W.IsReady())
-                    W.Cast(minion);
-
-                if (laneclearE && E.IsReady() && minion.HasBuffOfType(BuffType.Poison))
-                    E.Cast(minion);
-            }
-        }
-
-        private static void OnToggluseE()
-        {
-            var target = TargetSelector.GetTarget(850, DamageType.Magical);
-            {
-                if (Q.IsReady() && harassMenu["useQToggle"].Cast<KeyBind>().CurrentValue && target.IsValidTarget(Q.Range))
-                    Q.Cast(target);
-            }
-        }
-
-        private static void OnUltimate()
-        {
-            var target = TargetSelector.GetTarget(500, DamageType.Magical);
-            var castPred = R.GetPrediction(target);
-            {
-                {
-                    foreach (
-                        var enemy in
-                            ObjectManager.Get<AIHeroClient>()
-                                .Where(enemy => enemy.Distance(myHero) <= Program.R.Range))
-                    {
-                        if (enemy.CountEnemiesInRange(500) >= ultimateMenu["minR"].Cast<Slider>().CurrentValue && ultimateMenu["useAutoUlt"].Cast<CheckBox>().CurrentValue && enemy.IsFacing(myHero)) //ObjectManager.Player
-                            R.Cast(target.Position);
-                    }
-                }
-            }
-        }
-
-        private static void OnIgnite()
-        {
-            if (myHero.IsDead || !Ignite.IsReady() || !ksMenu["useIgnite"].Cast<CheckBox>().CurrentValue)
-                return;
-
-            var target = TargetSelector.GetTarget(850, DamageType.Magical);
-            if (target.IsValidTarget(Ignite.Range) && target.Health < myHero.GetSummonerSpellDamage(target, DamageLibrary.SummonerSpells.Ignite))
-                Ignite.Cast(target);
         }
     }
 }
