@@ -88,18 +88,14 @@ namespace tryLulu
                 Modes.LaneClear();
             }
 
-            /*
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
+            // Auto ult
+            if (comboMenu["useAutoUlt"].Cast<CheckBox>().CurrentValue)
             {
-                JungleClear();
-            }*/
-
-            {//Ult control
                 Modes.Ultimate();
             }
 
             // Auto Ignite
-            if (ksMenu["useIgnite"].Cast<CheckBox>().CurrentValue)
+            if (ksMenu["useIgnite"].Cast<CheckBox>().CurrentValue && Ignite.IsReady())
             {
                 Modes.AutoIgnite();
             }

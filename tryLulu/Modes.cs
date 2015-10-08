@@ -12,8 +12,6 @@ namespace tryLulu
     class Modes
     {
         public static AIHeroClient _Player { get { return ObjectManager.Player; } }
-        private static long LastQCast = 0;
-        private static long LastECast = 0;
 
         public static float GetDamage(SpellSlot spell, Obj_AI_Base target)
         {
@@ -31,20 +29,33 @@ namespace tryLulu
         {
             var target = myTarget.GetTarget(850, DamageType.Magical);
             {
-                if (Program.W.IsReady() && target.IsValidTarget(Program.W.Range) && Program.comboMenu["useW"].Cast<CheckBox>().CurrentValue && Environment.TickCount > LastQCast + Program.Q.CastDelay * 1000)
+                bool useQ = Program.comboMenu["useQ"].Cast<CheckBox>().CurrentValue;
+                bool useW = Program.comboMenu["useW"].Cast<CheckBox>().CurrentValue;
+                bool useE = Program.comboMenu["useE"].Cast<CheckBox>().CurrentValue;
+
+                if (useW)
                 {
-                    Program.W.Cast(target);
+                    if (Program.W.IsReady() && target.IsValidTarget(Program.W.Range) && target != null && target.IsVisible && !target.IsDead)
+                    {
+                        Program.W.Cast(target);
+                    }
                 }
 
-                if (Program.Q.IsReady() && Program.comboMenu["useQ"].Cast<CheckBox>().CurrentValue && target.IsValidTarget(Program.Q.Range) && target != null && target.IsVisible && !target.IsDead)
+                if (useQ)
                 {
-                    var qPred = Program.Q.GetPrediction(target);
-                    Program.Q.Cast(qPred.UnitPosition);
+                    if (Program.Q.IsReady() && target.IsValidTarget(Program.Q.Range) && target != null && target.IsVisible && !target.IsDead)
+                    {
+                        var qPred = Program.Q.GetPrediction(target);
+                        Program.Q.Cast(qPred.UnitPosition);
+                    }
                 }
 
-                if (Program.E.IsReady() && Program.comboMenu["useE"].Cast<CheckBox>().CurrentValue && target.IsValidTarget(Program.E.Range) && target != null && target.IsVisible && !target.IsDead)
+                if (useE)
                 {
-                    Program.E.Cast(target);
+                    if (Program.E.IsReady() && target.IsValidTarget(Program.E.Range) && target != null && target.IsVisible && !target.IsDead)
+                    {
+                        Program.E.Cast(target);
+                    }
                 }
             }
         }
@@ -75,7 +86,7 @@ namespace tryLulu
 
         public static void AutoIgnite()
         {
-            if (_Player.IsDead || !Program.Ignite.IsReady() || !Program.ksMenu["useIgnite"].Cast<CheckBox>().CurrentValue)
+            if (_Player.IsDead)
                 return;
 
             var target = myTarget.GetTarget(650, DamageType.Magical);
@@ -106,25 +117,24 @@ namespace tryLulu
 
         public static void Ultimate()
         {
-            if (Program.comboMenu["useAutoUlt"].Cast<CheckBox>().CurrentValue)
+            foreach (var ally in EntityManager.Heroes.Allies)
             {
-                foreach (var ally in EntityManager.Heroes.Allies)
+                if (ally.IsValidTarget(Program.R.Range))
                 {
-                    if (ally.IsValidTarget(Program.R.Range))
+                    var c = ally.CountEnemiesInRange(300);
+                    if (c >= 1 + 1 + 1 || ally.HealthPercent <= Program.comboMenu["minR"].Cast<Slider>().CurrentValue
+                        && c >= 1 && !ally.IsRecalling)
                     {
-                        var c = ally.CountEnemiesInRange(300);
-                        if (c >= 1 + 1 + 1 || ally.HealthPercent <= Program.comboMenu["minR"].Cast<Slider>().CurrentValue && c >= 1)
-                        {
-                            Program.R.Cast(ally);
-                        }
+                        Program.R.Cast(ally);
                     }
                 }
+            }
 
-                var ec = _Player.CountEnemiesInRange(300);
-                if (ec >= 1 + 1 + 1 || _Player.HealthPercent <= 15 && ec >= 1)
-                {
-                    Program.R.Cast(_Player);
-                }
+            var ec = _Player.CountEnemiesInRange(300);
+            if (ec >= 1 + 1 + 1 || _Player.HealthPercent <= Program.comboMenu["minR"].Cast<Slider>().CurrentValue
+                && ec >= 1 && !_Player.IsRecalling)
+            {
+                Program.R.Cast(_Player);
             }
         }
     }
