@@ -13,6 +13,33 @@ namespace tryLulu
     {
         public static AIHeroClient _Player { get { return ObjectManager.Player; } }
 
+        public static void ChangeSkin() 
+        {
+            var style = Program.miscMenu["skinID"].DisplayName;
+
+            switch (style)
+            {
+                case "Classic":
+                    _Player.SetSkinId(0);
+                    break;
+                case "Bittersweet Lulu":
+                    _Player.SetSkinId(1);
+                    break;
+                case "Wicked Lulu":
+                    _Player.SetSkinId(2);
+                    break;
+                case "Dragon Trainer Lulu":
+                    _Player.SetSkinId(3);
+                    break;
+                case "Winter Wonder Lulu":
+                    _Player.SetSkinId(4);
+                    break;
+                case "Pool Paerty Lulu":
+                    _Player.SetSkinId(5);
+                    break;
+            }
+        }
+
         public static float GetDamage(SpellSlot spell, Obj_AI_Base target)
         {
             float ap = _Player.FlatMagicDamageMod + _Player.BaseAbilityDamage;

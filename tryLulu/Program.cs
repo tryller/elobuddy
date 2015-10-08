@@ -1,8 +1,4 @@
-﻿/*
-    v1.0.0 - Initial Release.
-*/
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +15,7 @@ namespace tryLulu
 {
     internal class Program
     {
-        public static Menu defaultMenu, comboMenu, harassMenu, laneClearMenu, ksMenu;
+        public static Menu defaultMenu, comboMenu, harassMenu, laneClearMenu, miscMenu;
         public static Spell.Skillshot Q;
         public static Spell.Targeted W;
         public static Spell.Targeted E;
@@ -59,8 +55,21 @@ namespace tryLulu
             laneClearMenu.Add("useQ", new CheckBox("Use Q"));
             laneClearMenu.Add("laneMana", new Slider("Minimun mana for Lane Clear", 0, 0, 100));
 
-            ksMenu = defaultMenu.AddSubMenu("Kill Steal", "ksMenu");
-            ksMenu.Add("useIgnite", new CheckBox("Use Ignite"));
+            miscMenu = defaultMenu.AddSubMenu("Misc", "miscMenu");
+            miscMenu.Add("useIgnite", new CheckBox("Use Ignite if enemy killable"));
+            miscMenu.AddSeparator(10);
+            var skin = miscMenu.Add("skinID", new Slider("Skin", 0, 0, 5));
+            var sID = new[] {"Classic",
+                "Bittersweet Lulu",
+                "Wicked Lulu",
+                "Dragon Trainer Lulu",
+                "Winter Wonder Lulu",
+                "Pool Paerty Lulu"};
+            skin.DisplayName = sID[skin.CurrentValue];
+            skin.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
+            {
+                sender.DisplayName = sID[changeArgs.NewValue];
+            };
 
             Ignite = new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("summonerdot"), 600);
             Game.OnTick += Game_OnTick;
@@ -68,6 +77,8 @@ namespace tryLulu
 
         private static void Game_OnTick(EventArgs args)
         {
+            Modes.ChangeSkin();
+
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
             {
                 Modes.Combo();
@@ -95,7 +106,7 @@ namespace tryLulu
             }
 
             // Auto Ignite
-            if (ksMenu["useIgnite"].Cast<CheckBox>().CurrentValue && Ignite.IsReady())
+            if (miscMenu["useIgnite"].Cast<CheckBox>().CurrentValue && Ignite.IsReady())
             {
                 Modes.AutoIgnite();
             }

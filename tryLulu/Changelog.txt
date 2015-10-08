@@ -1,0 +1,8 @@
+* v1.0.0
+	* Initial release.
+	* Full Combo (W,Q,E).
+	* Harass.
+	* Auto Ignite if enemy killable.
+	* Lane Clear with Q.
+	* Auto ultimate if ally or lul have low health with configurable percent.
+	* Skin changer.
