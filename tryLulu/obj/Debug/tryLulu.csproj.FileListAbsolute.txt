@@ -1,0 +1,10 @@
+D:\League of Legends\EloBuddy\Scripts\Development\tryLulu\bin\Debug\tryLulu.exe.config
+D:\League of Legends\EloBuddy\Scripts\Development\tryLulu\bin\Debug\tryLulu.exe
+D:\League of Legends\EloBuddy\Scripts\Development\tryLulu\bin\Debug\tryLulu.pdb
+D:\League of Legends\EloBuddy\Scripts\Development\tryLulu\bin\Debug\EloBuddy.dll
+D:\League of Legends\EloBuddy\Scripts\Development\tryLulu\bin\Debug\EloBuddy.SDK.dll
+D:\League of Legends\EloBuddy\Scripts\Development\tryLulu\bin\Debug\SharpDX.dll
+D:\League of Legends\EloBuddy\Scripts\Development\tryLulu\bin\Debug\SharpDX.Direct3D9.dll
+D:\League of Legends\EloBuddy\Scripts\Development\tryLulu\bin\Debug\Newtonsoft.Json.dll
+D:\League of Legends\EloBuddy\Scripts\Development\tryLulu\obj\Debug\tryLulu.exe
+D:\League of Legends\EloBuddy\Scripts\Development\tryLulu\obj\Debug\tryLulu.pdb
