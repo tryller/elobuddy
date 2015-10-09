@@ -13,25 +13,6 @@ namespace tryLulu
     {
         public static AIHeroClient _Player { get { return ObjectManager.Player; } }
 
-        public static void KillSteal()
-        {
-            foreach (AIHeroClient enemy in EntityManager.Heroes.Enemies)
-            {
-                if (enemy.IsValidTarget(Program.Q.Range))
-                {
-                    if (Program.miscMenu["ksQ"].Cast<CheckBox>().CurrentValue && (_Player.GetSpellDamage(enemy, SpellSlot.Q) >= enemy.Health))
-                    {
-                        Program.Q.Cast(enemy);
-                    }
-
-                    if (Program.E.IsReady() && Program.miscMenu["ksE"].Cast<CheckBox>().CurrentValue && (_Player.GetSpellDamage(enemy, SpellSlot.E) >= enemy.Health))
-                    {
-                        Program.E.Cast(enemy);
-                    }
-                }
-            }
-        }
-
         public static void ChangeSkin() 
         {
             var style = Program.miscMenu["skinID"].DisplayName;

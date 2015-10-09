@@ -44,7 +44,7 @@ namespace tryLulu
             comboMenu.Add("useQ", new CheckBox("Use Q"));
             comboMenu.Add("useW", new CheckBox("Use W"));
             comboMenu.Add("useE", new CheckBox("Use E"));
-            miscMenu.AddLabel("<---> Ultimate Settings <--->");
+            comboMenu.AddSeparator(30);
             comboMenu.Add("useAutoUlt", new CheckBox("Use Auto-Ultimate"));
             comboMenu.Add("minR", new Slider("Minimum health of ally or Lulu to cast (R)", 15, 0, 100));
 
@@ -56,12 +56,8 @@ namespace tryLulu
             laneClearMenu.Add("laneMana", new Slider("Minimun mana for Lane Clear", 0, 0, 100));
 
             miscMenu = defaultMenu.AddSubMenu("Misc", "miscMenu");
-            miscMenu.AddLabel("<---> Kill Steal <--->");
-            miscMenu.Add("ksQ", new CheckBox("Kill Steal (Q)"));
-            miscMenu.Add("ksE", new CheckBox("Kill Steal (E)"));
             miscMenu.Add("useIgnite", new CheckBox("Use Ignite if enemy killable"));
-
-            miscMenu.AddLabel("<---> Skin Changer <--->");
+            miscMenu.AddSeparator(10);
             var skin = miscMenu.Add("skinID", new Slider("Skin", 0, 0, 5));
             var sID = new[] {"Classic",
                 "Bittersweet Lulu",
@@ -75,36 +71,14 @@ namespace tryLulu
                 sender.DisplayName = sID[changeArgs.NewValue];
             };
 
-            miscMenu.AddLabel("<---> Anti Gapcloser <--->");
-            miscMenu.Add("gapW", new CheckBox("Anti-Gabpcloser with (W)", false));
-            miscMenu.Add("gapE", new CheckBox("Anti-Gabpcloser with (E)", false));
-
             Ignite = new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("summonerdot"), 600);
-            Gapcloser.OnGapcloser += OnGapcloser;
             Game.OnTick += Game_OnTick;
-        }
-
-        private static void OnGapcloser(AIHeroClient sender, Gapcloser.GapcloserEventArgs gapcloser)
-        {
-            if (miscMenu["gapW"].Cast<CheckBox>().CurrentValue)
-            {
-                if (W.IsReady() && ObjectManager.Player.Distance(gapcloser.Sender, true) < W.Range * W.Range)
-                {
-                    W.Cast(gapcloser.Sender);
-                }
-            }
-
-            if (miscMenu["gapE"].Cast<CheckBox>().CurrentValue)
-            {
-                if (E.IsReady() && ObjectManager.Player.Distance(gapcloser.Sender, true) < E.Range * E.Range)
-                {
-                    E.Cast(ObjectManager.Player);
-                }
-            }
         }
 
         private static void Game_OnTick(EventArgs args)
         {
+            Modes.ChangeSkin();
+
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
             {
                 Modes.Combo();
@@ -125,18 +99,17 @@ namespace tryLulu
                 Modes.LaneClear();
             }
 
+            // Auto ult
             if (comboMenu["useAutoUlt"].Cast<CheckBox>().CurrentValue)
             {
                 Modes.Ultimate();
             }
 
+            // Auto Ignite
             if (miscMenu["useIgnite"].Cast<CheckBox>().CurrentValue && Ignite.IsReady())
             {
                 Modes.AutoIgnite();
             }
-
-            Modes.ChangeSkin();
-            Modes.KillSteal();
         }
     }
 }
