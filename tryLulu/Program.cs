@@ -24,29 +24,27 @@ namespace tryLulu
 
         private static void Main(string[] args)
         {
-            Loading.OnLoadingComplete += OnComplete;
+            Loading.OnLoadingComplete += OnLoadingComplete;
         }
 
-        private static void OnComplete(EventArgs args)
+        private static void OnLoadingComplete(EventArgs args)
         {
             if (Player.Instance.Hero != Champion.Lulu)
                 return;
-
-            Bootstrap.Init(null);
 
             Q = new Spell.Skillshot(SpellSlot.Q, 950, SkillShotType.Linear, 60, 1400, 150);
             W = new Spell.Targeted(SpellSlot.W, 650);
             E = new Spell.Targeted(SpellSlot.E, 650);
             R = new Spell.Targeted(SpellSlot.R, 900);
 
-            defaultMenu = MainMenu.AddMenu("Lulu", "tryLulu");
+            defaultMenu = MainMenu.AddMenu("Lulu", "Lulu");
             comboMenu = defaultMenu.AddSubMenu("Combo", "comboMenu");
             comboMenu.Add("useQ", new CheckBox("Use Q"));
             comboMenu.Add("useW", new CheckBox("Use W"));
             comboMenu.Add("useE", new CheckBox("Use E"));
-            comboMenu.AddSeparator(30);
+            comboMenu.AddLabel("<---> Ultimate Settings <--->");
             comboMenu.Add("useAutoUlt", new CheckBox("Use Auto-Ultimate"));
-            comboMenu.Add("minR", new Slider("Minimum health of ally or Lulu to cast (R)", 15, 0, 100));
+            comboMenu.Add("minR", new Slider("Minimum health % of ally or Lulu to cast (R)", 15, 0, 100));
 
             harassMenu = defaultMenu.AddSubMenu("Harass", "harassMenu");
             harassMenu.Add("useQ", new CheckBox("Use Q"));
@@ -56,8 +54,17 @@ namespace tryLulu
             laneClearMenu.Add("laneMana", new Slider("Minimun mana for Lane Clear", 0, 0, 100));
 
             miscMenu = defaultMenu.AddSubMenu("Misc", "miscMenu");
+            miscMenu.AddLabel("<---> Item Usage <--->");
+            miscMenu.Add("useZhonya", new CheckBox("Use Auto-Zhonyas"));
+            miscMenu.Add("minZhonyaHealth", new Slider("Minimum health % to use Zhonyas", 15, 0, 100));
+            miscMenu.AddLabel("<---> Kill Steal <--->");
+            miscMenu.Add("ksQ", new CheckBox("Kill Steal (Q)"));
+            miscMenu.Add("ksE", new CheckBox("Kill Steal (E)"));
             miscMenu.Add("useIgnite", new CheckBox("Use Ignite if enemy killable"));
-            miscMenu.AddSeparator(10);
+            miscMenu.AddLabel("<---> Anti Gapcloser <--->");
+            miscMenu.Add("gapW", new CheckBox("Anti-Gabpcloser with (W)", false));
+            miscMenu.Add("gapE", new CheckBox("Anti-Gabpcloser with (E)", false));
+            miscMenu.AddLabel("<---> Skin Changer <--->");
             var skin = miscMenu.Add("skinID", new Slider("Skin", 0, 0, 5));
             var sID = new[] {"Classic",
                 "Bittersweet Lulu",
@@ -72,43 +79,70 @@ namespace tryLulu
             };
 
             Ignite = new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("summonerdot"), 600);
+
+            Gapcloser.OnGapcloser += OnGapcloser;
             Game.OnTick += Game_OnTick;
+        }
+
+        private static void OnGapcloser(AIHeroClient sender, Gapcloser.GapcloserEventArgs gapcloser)
+        {
+            if (miscMenu["gapW"].Cast<CheckBox>().CurrentValue)
+            {
+                if (W.IsReady() && ObjectManager.Player.Distance(gapcloser.Sender, true) < W.Range * W.Range)
+                {
+                    W.Cast(gapcloser.Sender);
+                }
+            }
+
+            if (miscMenu["gapE"].Cast<CheckBox>().CurrentValue)
+            {
+                if (E.IsReady() && ObjectManager.Player.Distance(gapcloser.Sender, true) < E.Range * E.Range)
+                {
+                    E.Cast(ObjectManager.Player);
+                }
+            }
         }
 
         private static void Game_OnTick(EventArgs args)
         {
-            Modes.ChangeSkin();
-
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
+            try
             {
-                Modes.Combo();
+                Modes.ChangeSkin();
+                Modes.KillSteal();
+
+                if (miscMenu["useZhonya"].Cast<CheckBox>().CurrentValue)
+                {
+                    Modes.AutoZhonya();
+                }
+
+                if (comboMenu["useAutoUlt"].Cast<CheckBox>().CurrentValue)
+                {
+                    Modes.Ultimate();
+                }
+
+                if (miscMenu["useIgnite"].Cast<CheckBox>().CurrentValue && Ignite.IsReady())
+                {
+                    Modes.AutoIgnite();
+                }
+
+                switch (Orbwalker.ActiveModesFlags)
+                {
+                    case Orbwalker.ActiveModes.Combo:
+                        Modes.Combo();
+                        break;
+
+                    case Orbwalker.ActiveModes.Harass:
+                        Modes.Harass();
+                        break;
+
+                    case Orbwalker.ActiveModes.LaneClear:
+                        Modes.LaneClear();
+                        break;
+                }
             }
-
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
+            catch (Exception ex)
             {
-                Modes.Harass();
-            }
-
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit))
-            {
-                Modes.LastHit();
-            }
-
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
-            {
-                Modes.LaneClear();
-            }
-
-            // Auto ult
-            if (comboMenu["useAutoUlt"].Cast<CheckBox>().CurrentValue)
-            {
-                Modes.Ultimate();
-            }
-
-            // Auto Ignite
-            if (miscMenu["useIgnite"].Cast<CheckBox>().CurrentValue && Ignite.IsReady())
-            {
-                Modes.AutoIgnite();
+                Console.Write("Error: "+ ex.Message.ToString());
             }
         }
     }

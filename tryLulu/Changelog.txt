@@ -1,8 +1,13 @@
-* v1.0.0
-	* Initial release.
-	* Full Combo (W,Q,E).
-	* Harass.
-	* Auto Ignite if enemy killable.
-	* Lane Clear with Q.
-	* Auto ultimate if ally or lul have low health with configurable percent.
-	* Skin changer.
+v1.1.0
+* Add antigapcloser with W, E.
+* Add kell steal with Q, E.
+* Add Auto Zhonyas with health percente configurable.
+
+v1.0.0
+* Initial release.
+* Full Combo (W,Q,E).
+* Harass.
+* Auto Ignite if enemy killable.
+* Lane Clear with Q.
+* Auto ultimate if ally or lul have low health with configurable percent.
+* Skin changer.

@@ -12,6 +12,38 @@ namespace tryLulu
     class Modes
     {
         public static AIHeroClient _Player { get { return ObjectManager.Player; } }
+        private static readonly Item Zhonya = new Item(3157);
+
+        public static void AutoZhonya()
+        {
+            if (!Zhonya.IsReady())
+                return;
+
+            if (_Player.HealthPercent <= Program.miscMenu["minZhonyaHealth"].Cast<Slider>().CurrentValue
+                && !_Player.IsRecalling)
+            {
+                Zhonya.Cast();
+            }
+        }
+
+        public static void KillSteal()
+        {
+            foreach (AIHeroClient enemy in EntityManager.Heroes.Enemies)
+            {
+                if (enemy.IsValidTarget(Program.Q.Range))
+                {
+                    if (Program.miscMenu["ksQ"].Cast<CheckBox>().CurrentValue && (_Player.GetSpellDamage(enemy, SpellSlot.Q) >= enemy.Health))
+                    {
+                        Program.Q.Cast(enemy);
+                    }
+
+                    if (Program.E.IsReady() && Program.miscMenu["ksE"].Cast<CheckBox>().CurrentValue && (_Player.GetSpellDamage(enemy, SpellSlot.E) >= enemy.Health))
+                    {
+                        Program.E.Cast(enemy);
+                    }
+                }
+            }
+        }
 
         public static void ChangeSkin() 
         {
@@ -43,10 +75,11 @@ namespace tryLulu
         public static float GetDamage(SpellSlot spell, Obj_AI_Base target)
         {
             float ap = _Player.FlatMagicDamageMod + _Player.BaseAbilityDamage;
-            if (spell == SpellSlot.E)
+            if (spell == SpellSlot.Q)
             {
-                if (!Program.E.IsReady())
+                if (!Program.Q.IsReady())
                     return 0;
+
                 return _Player.CalculateDamageOnUnit(target, DamageType.Magical, 55f + 25f * (Program.E.Level - 1) + 55 / 100 * ap);
             }
             return 0;
@@ -99,18 +132,6 @@ namespace tryLulu
             }
         }
 
-        public static void LastHit()
-        {
-            foreach (var minion in ObjectManager.Get<Obj_AI_Minion>().Where(x => Program.E.IsInRange(x)
-                && !x.IsDead
-                && x.IsEnemy
-                && x.HasBuffOfType(BuffType.Poison)
-                && x.Health + 5 < GetDamage(SpellSlot.E, x)))
-            {
-                Program.E.Cast(minion);
-            }
-        }
-
         public static void AutoIgnite()
         {
             if (_Player.IsDead)
@@ -132,12 +153,11 @@ namespace tryLulu
                     600,
                     true).FirstOrDefault();
 
-            if (minion != null && Player.Instance.ManaPercent > laneclearMinMana)
+            if (minion != null && _Player.ManaPercent > laneclearMinMana)
             {
                 if (laneclearQ && Program.Q.IsReady())
                 {
-                    var Qpred = Program.Q.GetPrediction(minion);
-                    Program.Q.Cast(Qpred.UnitPosition);
+                    Program.Q.Cast(minion);
                 }
             }
         }
