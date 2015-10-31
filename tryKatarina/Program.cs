@@ -10,12 +10,14 @@ using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
 using EloBuddy.SDK.Rendering;
+using SharpDX;
 
 namespace tryKatarina
 {
     class Program
     {
-        public static Menu defaultMenu, comboMenu, harassMenu, laneClearMenu, miscMenu;
+        public static Menu defaultMenu, comboMenu, harassMenu,
+            laneClearMenu, miscMenu;
         public static Spell.Targeted Q;
         public static Spell.Active W;
         public static Spell.Targeted E;
@@ -38,21 +40,21 @@ namespace tryKatarina
             R = new Spell.Active(SpellSlot.R, 550);
 
             defaultMenu = MainMenu.AddMenu("Katarina", "Katarina");
-            comboMenu = defaultMenu.AddSubMenu("Combo", "comboMenu");
+            comboMenu = defaultMenu.AddSubMenu("Combo Settings", "comboMenu");
             comboMenu.Add("useQ", new CheckBox("Use Q"));
             comboMenu.Add("useW", new CheckBox("Use W"));
             comboMenu.Add("useE", new CheckBox("Use E"));
             comboMenu.Add("useR", new CheckBox("Use R"));
 
-            harassMenu = defaultMenu.AddSubMenu("Harass", "harassMenu");
+            harassMenu = defaultMenu.AddSubMenu("Harass Settings", "harassMenu");
             harassMenu.Add("useQ", new CheckBox("Use Q"));
 
-            laneClearMenu = defaultMenu.AddSubMenu("Lane Clear", "laneClearMenu");
+            laneClearMenu = defaultMenu.AddSubMenu("Lane Clear Settings", "laneClearMenu");
             laneClearMenu.Add("useQ", new CheckBox("Use Q"));
             laneClearMenu.Add("useW", new CheckBox("Use W"));
             laneClearMenu.Add("useE", new CheckBox("Use E"));
 
-            miscMenu = defaultMenu.AddSubMenu("Misc", "miscMenu");
+            miscMenu = defaultMenu.AddSubMenu("Misc Settings", "miscMenu");
             miscMenu.AddLabel("<---> Item Usage <--->");
             miscMenu.Add("useZhonya", new CheckBox("Use Auto-Zhonyas"));
             miscMenu.Add("minZhonyaHealth", new Slider("Minimum health % to use Zhonyas", 15, 0, 100));
@@ -85,7 +87,18 @@ namespace tryKatarina
         {
             try
             {
-               // Modes.ChangeSkin();
+                if (!ObjectManager.Player.HasBuff("katarinarsound"))
+                {
+                    Orbwalker.DisableAttacking = false;
+                    Orbwalker.DisableMovement = false;
+                }
+                else
+                {
+                    Orbwalker.DisableAttacking = true;
+                    Orbwalker.DisableMovement = true;
+                }
+
+                Modes.ChangeSkin();
                // Modes.KillSteal();
 
                 if (miscMenu["useZhonya"].Cast<CheckBox>().CurrentValue)
@@ -101,11 +114,7 @@ namespace tryKatarina
                 switch (Orbwalker.ActiveModesFlags)
                 {
                     case Orbwalker.ActiveModes.Combo:
-                        Orbwalker.DisableAttacking = true;
-                        Orbwalker.DisableMovement = true;
                         Modes.Combo();
-                        Orbwalker.DisableAttacking = false;
-                        Orbwalker.DisableMovement = false;
                         break;
 
                     case Orbwalker.ActiveModes.Harass:

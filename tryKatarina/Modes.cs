@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Menu.Values;
+using SharpDX;
 
 namespace tryKatarina
 {
@@ -82,14 +83,8 @@ namespace tryKatarina
 
         public static void Combo()
         {
-            var target = TargetSelector.GetTarget(850, DamageType.Magical);
+            var target = TargetSelector.GetTarget(Program.E.Range, DamageType.Magical);
             {
-                if ((target == null) || (!Program.Q.IsReady() && !Program.W.IsReady() &&
-                    !Program.E.IsReady() && !Program.R.IsReady()))
-                {
-                    return;
-                }
-
                 bool useQ = Program.comboMenu["useQ"].Cast<CheckBox>().CurrentValue;
                 bool useW = Program.comboMenu["useW"].Cast<CheckBox>().CurrentValue;
                 bool useE = Program.comboMenu["useE"].Cast<CheckBox>().CurrentValue;
@@ -113,17 +108,20 @@ namespace tryKatarina
 
                 if (useW)
                 {
-                    if (Program.W.IsReady() && target.IsValidTarget(Program.W.Range) && target != null && target.IsVisible && !target.IsDead)
+                    if (Program.W.IsReady() && _Player.Distance(target.Position) <= Program.W.Range)
                     {
-                        Program.W.Cast(target);
+                        Program.W.Cast();
                     }
                 }
 
                 if (useR)
                 {
-                    if (Program.R.IsReady() && target.IsValidTarget(Program.R.Range) && target != null && target.IsVisible && !target.IsDead)
+                    if (Program.R.IsReady() && _Player.Distance(target.Position) <= Program.R.Range && target != null &&
+                        target.IsVisible && !target.IsDead && !Program.Q.IsReady() && !Program.W.IsReady() && !Program.E.IsReady())
                     {
-                        Program.R.Cast(target);
+                        Orbwalker.DisableMovement = true;
+                        Orbwalker.DisableAttacking = true;
+                        Program.R.Cast();
                     }
                 }
             }
