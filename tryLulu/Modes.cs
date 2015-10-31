@@ -20,7 +20,7 @@ namespace tryLulu
                 return;
 
             if (_Player.HealthPercent <= Program.miscMenu["minZhonyaHealth"].Cast<Slider>().CurrentValue
-                && !_Player.IsRecalling)
+                && !_Player.IsRecalling())
             {
                 Zhonya.Cast();
             }
@@ -87,7 +87,7 @@ namespace tryLulu
 
         public static void Combo()
         {
-            var target = myTarget.GetTarget(850, DamageType.Magical);
+            var target = TargetSelector.GetTarget(850, DamageType.Magical);
             {
                 bool useQ = Program.comboMenu["useQ"].Cast<CheckBox>().CurrentValue;
                 bool useW = Program.comboMenu["useW"].Cast<CheckBox>().CurrentValue;
@@ -122,7 +122,7 @@ namespace tryLulu
 
         public static void Harass()
         {
-            var target = myTarget.GetTarget(850, DamageType.Magical);
+            var target = TargetSelector.GetTarget(850, DamageType.Magical);
             {
                 if (Program.Q.IsReady() && Program.harassMenu["useQ"].Cast<CheckBox>().CurrentValue && target.IsValidTarget(Program.Q.Range))
                 {
@@ -137,7 +137,7 @@ namespace tryLulu
             if (_Player.IsDead)
                 return;
 
-            var target = myTarget.GetTarget(650, DamageType.Magical);
+            var target = TargetSelector.GetTarget(650, DamageType.Magical);
             if (target.IsValidTarget(Program.Ignite.Range) && target.Health < _Player.GetSummonerSpellDamage(target, DamageLibrary.SummonerSpells.Ignite))
                 Program.Ignite.Cast(target);
         }
@@ -146,12 +146,15 @@ namespace tryLulu
         {
             var laneclearQ = Program.laneClearMenu["useQ"].Cast<CheckBox>().CurrentValue;
             var laneclearMinMana = Program.laneClearMenu["laneMana"].Cast<Slider>().CurrentValue;
-
+            /*
             Obj_AI_Base minion = EntityManager.GetLaneMinions(
                     EntityManager.UnitTeam.Enemy,
                     _Player.Position.To2D(),
                     600,
                     true).FirstOrDefault();
+            */
+            Obj_AI_Base minion = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy,
+                null, 600, true).FirstOrDefault();
 
             if (minion != null && _Player.ManaPercent > laneclearMinMana)
             {
@@ -170,7 +173,7 @@ namespace tryLulu
                 {
                     var c = ally.CountEnemiesInRange(300);
                     if (c >= 1 + 1 + 1 || ally.HealthPercent <= Program.comboMenu["minR"].Cast<Slider>().CurrentValue
-                        && c >= 1 && !ally.IsRecalling)
+                        && c >= 1 && !ally.IsRecalling())
                     {
                         Program.R.Cast(ally);
                     }
@@ -179,7 +182,7 @@ namespace tryLulu
 
             var ec = _Player.CountEnemiesInRange(300);
             if (ec >= 1 + 1 + 1 || _Player.HealthPercent <= Program.comboMenu["minR"].Cast<Slider>().CurrentValue
-                && ec >= 1 && !_Player.IsRecalling)
+                && ec >= 1 && !_Player.IsRecalling())
             {
                 Program.R.Cast(_Player);
             }

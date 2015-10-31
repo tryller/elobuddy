@@ -1,3 +1,6 @@
+v1.2.0
+* Fix Lulu errors.
+
 v1.1.0
 * Add antigapcloser with W, E.
 * Add kell steal with Q, E.
