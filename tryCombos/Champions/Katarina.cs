@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Enumerations;
@@ -20,8 +23,22 @@ namespace tryCombos.Champions
 
         public static AIHeroClient target;
 
-        public static Menu Menu;
+        public static Menu Menu, Humanizer;
         public static string G_charname = Program.myHero.ChampionName;
+
+        private static DateTime assemblyLoadTime = DateTime.Now;
+        public class LatestCast
+        {
+            public static float Tick = 0;
+            public static float Timepass;
+            public static float X = 0;
+            public static float Y = 0;
+            public static double Distance;
+            public static double Delay;
+            public static int count = 0;
+            public static double SavedTime = 0;
+
+        }
 
         public static void Init()
         {
@@ -38,6 +55,12 @@ namespace tryCombos.Champions
             Menu.AddLabel("But it have full combo for LOL Champions.");
             Menu.AddLabel("By Tryller");
 
+            Humanizer = Menu.AddSubMenu("Humanizer", "Humanizer");
+            Humanizer.Add("useHumanizer", new CheckBox("Use Humanize"));
+            Humanizer.Add("delayTime", new Slider("Delay time for distance", 500, 0, 1500));
+            Humanizer.Add("delayTimeCasts", new Slider("Delay time between casts", 800, 0, 1500));
+
+            Spellbook.OnCastSpell += Spellbook_OnCastSpell;
             Game.OnTick += Game_OnTick;
         }
 
@@ -100,6 +123,46 @@ namespace tryCombos.Champions
                     Orbwalker.DisableAttacking = true;
                     R.Cast();
                 }
+            }
+        }
+
+        public static float CurrentTick
+        {
+            get
+            {
+                return (int)DateTime.Now.Subtract(assemblyLoadTime).TotalMilliseconds;
+            }
+        }
+
+        public static void Spellbook_OnCastSpell(Spellbook sender, SpellbookCastSpellEventArgs eventArgs)
+        {
+            if (!Humanizer["useHumanizer"].Cast<CheckBox>().CurrentValue)
+                return;
+
+            if (!sender.Owner.IsMe)
+                return;
+
+            var delayTime = Humanizer["delayTime"].Cast<Slider>().CurrentValue;
+            var delayTimeCasts = Humanizer["delayTimeCasts"].Cast<Slider>().CurrentValue;
+
+            Vector2 tempvect = new Vector2(LatestCast.X, LatestCast.Y);
+            LatestCast.Timepass = CurrentTick - LatestCast.Tick;
+
+            LatestCast.Distance = tempvect.Distance(eventArgs.StartPosition);
+            LatestCast.Delay = (LatestCast.Distance * 0.001 * delayTime); ;
+            if (CurrentTick < LatestCast.Tick + LatestCast.Delay && LatestCast.Timepass < 300)
+            {
+                eventArgs.Process = false;
+                LatestCast.count += 1;
+                LatestCast.SavedTime += LatestCast.Delay;
+
+            }
+
+            if (eventArgs.Process == true && LatestCast.Timepass > delayTimeCasts)
+            {
+                LatestCast.X = eventArgs.StartPosition.X;
+                LatestCast.Y = eventArgs.StartPosition.Y;
+                LatestCast.Tick = CurrentTick;
             }
         }
     }
