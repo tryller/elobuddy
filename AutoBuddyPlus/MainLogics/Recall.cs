@@ -150,7 +150,13 @@ AutoBuddy won't recall if you have less gold than needed for next item.
             if (AutoWalker.Recalling() || ObjectManager.Player.Distance(spawn) < 500) return;
             lastRecallTime = Game.Time + 2f;
             AutoWalker.SetMode(Orbwalker.ActiveModes.None);
-            ObjectManager.Player.Spellbook.CastSpell(SpellSlot.Recall);
+            if (!AutoWalker.Recalling())
+            {
+                if (AutoWalker.B.IsReady())
+                {
+                    AutoWalker.B.Cast();
+                }
+            }  
         }
     }
 }
