@@ -40,13 +40,13 @@ namespace AutoBuddy.MyChampLogic
                 AutoWalker.EndGame += end;
                 file500 =
                     new StreamWriter(Path.Combine(Environment.GetFolderPath(
-                        Environment.SpecialFolder.ApplicationData), "AutoBuddy\\qPred500"), true);
+                        Environment.SpecialFolder.ApplicationData), "EloBuddy\\AutoBuddyPlus\\qPred500"), true);
                 file600 =
                     new StreamWriter(Path.Combine(Environment.GetFolderPath(
-                        Environment.SpecialFolder.ApplicationData), "AutoBuddy\\qPred600"), true);
+                        Environment.SpecialFolder.ApplicationData), "EloBuddy\\AutoBuddyPlus\\qPred600"), true);
                 file700 =
                     new StreamWriter(Path.Combine(Environment.GetFolderPath(
-                        Environment.SpecialFolder.ApplicationData), "AutoBuddy\\qPred700"), true);
+                        Environment.SpecialFolder.ApplicationData), "EloBuddy\\AutoBuddyPlus\\qPred700"), true);
                 Core.DelayAction(fl, 10000);
             }
             ShopSequence =
@@ -75,13 +75,6 @@ namespace AutoBuddy.MyChampLogic
             file500.Close();
             file600.Close();
             file700.Close();
-            Telemetry.SendFileAndDelete(Path.Combine(Environment.GetFolderPath(
-    Environment.SpecialFolder.ApplicationData), "AutoBuddy\\qPred700"), "cassQ700");
-            Telemetry.SendFileAndDelete(Path.Combine(Environment.GetFolderPath(
-Environment.SpecialFolder.ApplicationData), "AutoBuddy\\qPred500"), "cassQ500");
-            Telemetry.SendFileAndDelete(Path.Combine(Environment.GetFolderPath(
-Environment.SpecialFolder.ApplicationData), "AutoBuddy\\qPred600"), "cassQ600");
-
         }
 
         private void QCast(AIHeroClient target, Vector3 pos)

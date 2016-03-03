@@ -27,19 +27,15 @@ namespace AutoBuddy
 
         public static void Main()
         {
-            Hacks.RenderWatermark = false;
             Loading.OnLoadingComplete += Loading_OnLoadingComplete;
         }
 
         private static void Loading_OnLoadingComplete(EventArgs args)
         {
-
-            Telemetry.Init(Path.Combine(Environment.GetFolderPath(
-Environment.SpecialFolder.ApplicationData), "AutoBuddy"));
             createFS();
-            Chat.Print("AutoBuddy will start in 5 seconds. ");
+            Chat.Print("Auto Buddy Plus: Starting in 5 seconds. ");
             Core.DelayAction(Start, 5000);
-            menu = MainMenu.AddMenu("AUTOBUDDY", "AB");
+            menu = MainMenu.AddMenu("Auto Buddy Plus", "AB");
             menu.Add("sep1", new Separator(1));
             CheckBox c =
                 new CheckBox("Call mid, will leave if other player stays on mid(only auto lane)", true);
@@ -87,15 +83,10 @@ Environment.SpecialFolder.ApplicationData), "AutoBuddy"));
 
         }
 
-
-
-
         static void newpf_OnValueChange(ValueBase<bool> sender, ValueBase<bool>.ValueChangeArgs args)
         {
             AutoWalker.newPF = args.NewValue;
         }
-
-
 
         private static void Start()
         {
@@ -121,11 +112,11 @@ Environment.SpecialFolder.ApplicationData), "AutoBuddy"));
                     break;
             }
             CustomLvlSeq cl = new CustomLvlSeq(menu, AutoWalker.p, Path.Combine(Environment.GetFolderPath(
-            Environment.SpecialFolder.ApplicationData), "AutoBuddy\\Skills"));
+            Environment.SpecialFolder.ApplicationData), "EloBuddy\\AutoBuddyPlus\\Skills"));
             if (!generic)
             {
                 BuildCreator bc = new BuildCreator(menu, Path.Combine(Environment.GetFolderPath(
-                    Environment.SpecialFolder.ApplicationData), "AutoBuddy\\Builds"), myChamp.ShopSequence);
+                    Environment.SpecialFolder.ApplicationData), "EloBuddy\\AutoBuddyPlus\\Builds"), myChamp.ShopSequence);
             }
 
 
@@ -135,9 +126,9 @@ Environment.SpecialFolder.ApplicationData), "AutoBuddy"));
                 if (MainMenu.GetMenu("AB_" + ObjectManager.Player.ChampionName) != null &&
                     MainMenu.GetMenu("AB_" + ObjectManager.Player.ChampionName).Get<Label>("shopSequence") != null)
                 {
-                    Chat.Print("Autobuddy: Loaded shop plugin for " + ObjectManager.Player.ChampionName);
+                    Chat.Print("Auto Buddy Plus: Loaded shop plugin for " + ObjectManager.Player.ChampionName);
                     BuildCreator bc = new BuildCreator(menu, Path.Combine(Environment.GetFolderPath(
-                        Environment.SpecialFolder.ApplicationData), "AutoBuddy\\Builds"),
+                        Environment.SpecialFolder.ApplicationData), "EloBuddy\\AutoBuddyPlus\\Builds"),
                         MainMenu.GetMenu("AB_" + ObjectManager.Player.ChampionName)
                             .Get<Label>("shopSequence")
                             .DisplayName);
@@ -145,28 +136,21 @@ Environment.SpecialFolder.ApplicationData), "AutoBuddy"));
                 else
                 {
                     BuildCreator bc = new BuildCreator(menu, Path.Combine(Environment.GetFolderPath(
-                        Environment.SpecialFolder.ApplicationData), "AutoBuddy\\Builds"), myChamp.ShopSequence);
+                        Environment.SpecialFolder.ApplicationData), "EloBuddy\\AutoBuddyPlus\\Builds"), myChamp.ShopSequence);
                 }
             }
             Logic = new LogicSelector(myChamp, menu);
             new Disrespekt();
-            Telemetry.SendEvent("GameStart", new Dictionary<string, string>()
-            {
-                {"GameChamp", AutoWalker.p.ChampionName},
-                {"GameType", BrutalExtensions.GetGameType()},
-                {"GameRegion", Game.Region},
-                {"GameID", ""+AutoWalker.GameID},
-            });
         }
 
         private static void createFS()
         {
             Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(
-                Environment.SpecialFolder.ApplicationData), "AutoBuddy"));
+                Environment.SpecialFolder.ApplicationData), "EloBuddy\\AutoBuddyPlus"));
             Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(
-                Environment.SpecialFolder.ApplicationData), "AutoBuddy\\Builds"));
+                Environment.SpecialFolder.ApplicationData), "EloBuddy\\AutoBuddyPlus\\Builds"));
             Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(
-                Environment.SpecialFolder.ApplicationData), "AutoBuddy\\Skills"));
+                Environment.SpecialFolder.ApplicationData), "EloBuddy\\AutoBuddyPlus\\Skills"));
         }
     }
 }

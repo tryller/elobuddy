@@ -112,15 +112,7 @@ namespace AutoBuddy.MainLogics
 
         private void end(object o, EventArgs e)
         {
-            Telemetry.SendEvent("GameEnd", new Dictionary<string, string>()
-            {
-                {"GameChamp", AutoWalker.p.ChampionName},
-                {"GameKills",localAwareness.me.kills2+""},
-                {"GameDeaths",localAwareness.me.deaths+""},
-                {"GameAssists",localAwareness.me.assists+""},
-                {"GameFarm",localAwareness.me.farm+""},
-                {"GameID", AutoWalker.GameID},
-            });
+
         }
         internal enum MainLogics
         {

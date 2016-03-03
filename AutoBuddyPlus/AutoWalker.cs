@@ -43,7 +43,7 @@ namespace AutoBuddy
             GameID = DateTime.Now.Ticks + ""+RandomString(10);
             newPF = MainMenu.GetMenu("AB").Get<CheckBox>("newPF").CurrentValue;
             NavGraph=new NavGraph(Path.Combine(Environment.GetFolderPath(
-    Environment.SpecialFolder.ApplicationData), "AutoBuddy"));
+    Environment.SpecialFolder.ApplicationData), "EloBuddy\\AutoBuddyPlus"));
             PfNodes=new List<Vector3>();
             color = new ColorBGRA(79, 219, 50, 255);
             MyNexus = ObjectManager.Get<Obj_HQ>().First(n => n.IsAlly);

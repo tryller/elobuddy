@@ -154,7 +154,7 @@ you can copy/share them.
                 string s = File.ReadAllText(buildFile);
                 if (s.Equals(string.Empty))
                 {
-                    Chat.Print("AutoBuddy: the build is empty.");
+                    Chat.Print("Auto Buddy Plus: the build is empty.");
                     LoadInternalBuild();
                     return;
                 }
@@ -165,7 +165,7 @@ you can copy/share them.
             }
             catch (Exception e)
             {
-                Chat.Print("AutoBuddy: couldn't load the build.");
+                Chat.Print("Auto Buddy Plus: couldn't load the build.");
                 LoadInternalBuild();
                 Console.WriteLine(e.Message);
             }
@@ -177,7 +177,7 @@ you can copy/share them.
             {
                 if (sugBuild.Equals(string.Empty))
                 {
-                    Chat.Print("AutoBuddy: internal build is empty.");
+                    Chat.Print("Auto Buddy Plus: internal build is empty.");
                     return;
                 }
                 foreach (ItemAction ac in DeserializeBuild(sugBuild))
@@ -187,10 +187,10 @@ you can copy/share them.
             }
             catch (Exception e)
             {
-                Chat.Print("AutoBuddy: internal build load failed.");
+                Chat.Print("Auto Buddy Plus: internal build load failed.");
                 Console.WriteLine(e.Message);
             }
-            Chat.Print("AutoBuddy: loaded internal build(change it if you want!).");
+            Chat.Print("Auto Buddy Plus: loaded internal build(change it if you want!).");
         }
 
         private void SaveBuild()
