@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("AutoBuddy Plus")]
 [assembly: AssemblyDescription("Created by Christian Brutal Sniper and updated by Tryller")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Tryller")]
 [assembly: AssemblyProduct("AutoBuddy Plus")]
 [assembly: AssemblyCopyright("Copyright Christian Brutal Sniper@Elobuddy  2015")]
 [assembly: AssemblyTrademark("")]
