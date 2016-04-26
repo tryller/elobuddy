@@ -203,11 +203,12 @@ namespace AutoBuddy
             if (ObjectManager.Player.CountEnemiesInRange(900) >= 1 && Heal != null && Heal.IsReady())
                 Heal.Cast();
         }
-        public static void UseIgnite(AIHeroClient target = null)
+        public static void UseIgnite(AIHeroClient target)
         {
-            if (Ignite == null || !Ignite.IsReady()) return;
-            if (target == null)target =
-                    EntityManager.Heroes.Enemies.Where(en => en.Distance(myHero) < 600 + en.BoundingRadius)
+            if (Ignite == null || !Ignite.IsReady() || target == null) 
+                return;
+            
+            target = EntityManager.Heroes.Enemies.Where(en => en.Distance(myHero) < 600 + en.BoundingRadius)
                         .OrderBy(en => en.Health)
                         .FirstOrDefault();
             if (target != null && myHero.Distance(target) < 600 + target.BoundingRadius)
@@ -220,14 +221,22 @@ namespace AutoBuddy
         private static void initSummonerSpells()
         {
             B = new Spell.Active(SpellSlot.Recall);
-            Ghost = new Spell.Active(ObjectManager.Player.GetSpellSlotFromName("summonerhaste"));
+
+            Ghost = Player.Spells.FirstOrDefault(sp => sp.SData.Name.Contains("summonerhaste")) == null ? null : new Spell.Active(ObjectManager.Player.GetSpellSlotFromName("summonerhaste"));
+            Flash = Player.Spells.FirstOrDefault(sp => sp.SData.Name.Contains("summonerflash")) == null ? null : new Spell.Skillshot(ObjectManager.Player.GetSpellSlotFromName("summonerflash"), 600, SkillShotType.Circular);
+            Ignite = Player.Spells.FirstOrDefault(sp => sp.SData.Name.Contains("summonerdot")) == null ? null : new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("summonerdot"), 600);
+            Exhaust = Player.Spells.FirstOrDefault(sp => sp.SData.Name.Contains("summonerexhaust")) == null ? null : new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("summonerexhaust"), 600);
+            Teleport = Player.Spells.FirstOrDefault(sp => sp.SData.Name.Contains("summonerteleport")) == null ? null : new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("summonerteleport"), int.MaxValue);
+            Smite = Player.Spells.FirstOrDefault(sp => sp.SData.Name.Contains("smite")) == null ? null : new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("smite"), 600);
+
+            /*Ghost = new Spell.Active(ObjectManager.Player.GetSpellSlotFromName("summonerhaste"));
             Flash = new Spell.Skillshot(ObjectManager.Player.GetSpellSlotFromName("summonerflash"), 600, SkillShotType.Circular);
             Ignite = new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("summonerdot"), 600);
             Exhaust = new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("summonerexhaust"), 600);
             Teleport = new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("summonerteleport"), int.MaxValue);
             Smite = new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("smite"), 600);
+*/
             Heal = new Spell.Active(ObjectManager.Player.GetSpellSlotFromName("summonerheal"), 600);
-            Barrier = new Spell.Active(ObjectManager.Player.GetSpellSlotFromName("summonerbarrier"));
         }
 
 
@@ -291,9 +300,5 @@ namespace AutoBuddy
     }
 
 #endregion
-
-
-
-
 
 }
