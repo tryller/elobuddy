@@ -45,8 +45,8 @@ namespace AutoBuddy.MainLogics
             Core.DelayAction(SetWaveNumber, 500);
             SetCurrentWave();
             SetOffset();
-            if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
-                Drawing.OnDraw += Drawing_OnDraw;
+            
+            Drawing.OnDraw += Drawing_OnDraw;
         }
 
         public Obj_AI_Base myTurret { get; private set; }
@@ -91,8 +91,9 @@ namespace AutoBuddy.MainLogics
 
         private void Game_OnTick(EventArgs args)
         {
+            if (!active||myTurret==null)
+                return;
 
-            if (!active||myTurret==null) return;
             if (!AutoWalker.myHero.IsDead() && (myTurret.Health <= 0 || enemyTurret.Health <= 0))
             {
                 currentLogic.loadLogic.SetLane();
@@ -108,6 +109,9 @@ namespace AutoBuddy.MainLogics
 
         private void Drawing_OnDraw(EventArgs args)
         {
+            if (!MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
+                return;
+
             Drawing.DrawText(250, 40, Color.Gold,
                 "Push, active: " + active + "  wave num: " + CurrentWaveNum + " minions left: " + currentWave.Length);
             Circle.Draw(color, 100, currentWave.Length <= 0 ? AutoWalker.myHero.Position : AvgPos(currentWave));

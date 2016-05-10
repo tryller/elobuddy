@@ -56,10 +56,9 @@ namespace AutoBuddy.MyChampLogic
             R = new Spell.Skillshot(SpellSlot.R, 500, SkillShotType.Cone, 650, int.MaxValue, 75);
             E = new Spell.Targeted(SpellSlot.E, 700);
             updateTearStatus();
+
             Game.OnTick += Game_OnTick;
-            if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
-                Drawing.OnDraw += Drawing_OnDraw;
-            
+            Drawing.OnDraw += Drawing_OnDraw;
         }
 
         private void fl()
@@ -126,45 +125,16 @@ namespace AutoBuddy.MyChampLogic
             Core.DelayAction(updateTearStatus, 5000);
         }
 
-
-
         void Drawing_OnDraw(EventArgs args)
         {
+            if (!MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
+                return;
+
             foreach (var vector3 in AutoWalker.myHero.Path)
             {
                 Circle.Draw(new ColorBGRA(100, 100, 100, 255), 10, vector3);
             }
             Drawing.DrawText(900, 10, Color.Chocolate, dmg, 70);
-            /*AIHeroClient buf =
-    EntityManager.Heroes.AllHeroes.Where(h => h.Distance(Game.CursorPos) < 800)
-        .OrderBy(e => e.Distance(Game.CursorPos))
-        .FirstOrDefault();
-            if (buf != null)
-            {
-                int y = 0;
-                foreach (BuffInstance buff in buf.Buffs)
-                {
-                    Drawing.DrawText(500, 500 + y, Color.Chocolate, "Name: " +buff.Name+"  DisplayName: " +buff.DisplayName, 10);
-                    y += 20;
-                }
-            }
-            
-
-            AIHeroClient t=EntityManager.Heroes.Enemies.FirstOrDefault(en=>en.Distance(Game.CursorPos)<600);
-            if (t != null)
-            {
-                Vector2 pos = Game.CursorPos.WorldToScreen();
-                pos.Y -= 200;
-                /*int offset = 0;
-                foreach (BuffInstance buff in t.Buffs)
-                {
-                    Drawing.DrawText(pos.X, pos.Y+offset, Color.Aqua, buff.Name+" "+(buff.EndTime-Game.Time));
-                    offset += 20;
-                }
-                
-                float ti = TimeForAttack(t, 600);
-                Drawing.DrawText(pos.X, pos.Y + 60, Color.Aqua, ti + " " + EstDmg(t, ti) + "  " + (t.Health - EstDmg(t, ti)));
-            }*/
         }
 
         private void Game_OnTick(EventArgs args)

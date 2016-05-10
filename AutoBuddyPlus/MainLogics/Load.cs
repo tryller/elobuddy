@@ -27,8 +27,8 @@ namespace AutoBuddy.MainLogics
         {
             currentLogic = c;
             startTime = Game.Time + waitTime + RandGen.r.NextFloat(-10, 20);
-            if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
-                Drawing.OnDraw += Drawing_OnDraw;
+            
+            Drawing.OnDraw += Drawing_OnDraw;
             if (!AutoWalker.myHero.Name.Equals("Challenjour Ryze"))
                 Chat.OnMessage += Chat_OnMessage;
             MainMenu.GetMenu("AB").Get<CheckBox>("reselectlane").OnValueChange += Checkbox_OnValueChange;
@@ -69,6 +69,9 @@ namespace AutoBuddy.MainLogics
 
         private void Drawing_OnDraw(EventArgs args)
         {
+            if (!MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
+                return;
+
             Drawing.DrawText(250, 70, Color.Gold, "Lane selector status: " + status);
         }
 

@@ -26,8 +26,8 @@ namespace AutoBuddy.MainLogics
             Game.OnTick += Game_OnTick;
             Obj_AI_Base.OnSpellCast += Obj_AI_Base_OnSpellCast;
             DecHits();
-            if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
-                Drawing.OnDraw += Drawing_OnDraw;
+            
+            Drawing.OnDraw += Drawing_OnDraw;
         }
 
         private void Obj_AI_Base_OnSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
@@ -44,7 +44,6 @@ namespace AutoBuddy.MainLogics
             }
             else if (sender.Type == GameObjectType.AIHeroClient) hits += 2;
         }
-
 
         private void SetSpierdalanko(float sec)
         {
@@ -71,6 +70,9 @@ namespace AutoBuddy.MainLogics
 
         private void Drawing_OnDraw(EventArgs args)
         {
+            if (!MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
+                return;
+
             Drawing.DrawText(250, 10, Color.Gold,
                 "Survi, active: " + active + "  hits: " + hits + "  dangervalue: " + dangerValue);
         }

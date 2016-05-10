@@ -35,14 +35,14 @@ namespace AutoBuddy.MyChampLogic
             R = new Spell.Active(SpellSlot.R, 1000);
 
             Game.OnTick += Game_OnTick;
-            Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast; 
+           // Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast; 
         }
 
         public int[] skillSequence { get; private set; }
         public LogicSelector Logic { get; set; }
 
         public string ShopSequence { get; private set; }
-
+/*
         private static void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {
             var unit = sender as AIHeroClient;
@@ -162,14 +162,14 @@ namespace AutoBuddy.MyChampLogic
                     E.Cast();
             }
         }
-
+        */
         public void Harass(AIHeroClient target)
         {
 
         }
 
         public void Survi()
-        {
+        {/*
             AIHeroClient target =
                 EntityManager.Heroes.Enemies.FirstOrDefault(
                     chase => chase.Distance(AutoWalker.myHero) < 600 && chase.IsVisible());
@@ -179,12 +179,12 @@ namespace AutoBuddy.MyChampLogic
                 {
                     Q.Cast(target.ServerPosition);
                 }
-            }
+            }*/
         }
 
         public void Combo(AIHeroClient target)
         {
-            if (target.HealthPercent <= 45)
+            if (target.HealthPercent <= 50)
             {
                 if (Q.IsReady())
                 {
@@ -210,6 +210,11 @@ namespace AutoBuddy.MyChampLogic
                     {
                         R.Cast();
                     }
+                }
+
+                if (E.IsReady())
+                {
+                    E.Cast();
                 }
             }
         }

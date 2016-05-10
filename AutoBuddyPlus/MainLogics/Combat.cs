@@ -20,12 +20,14 @@ namespace AutoBuddy.MainLogics
         {
             current = currentLogic;
             Game.OnTick += Game_OnTick;
-            if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
-                Drawing.OnDraw += Drawing_OnDraw;
+            Drawing.OnDraw += Drawing_OnDraw;
         }
 
         private void Drawing_OnDraw(EventArgs args)
         {
+            if (!MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
+                return;
+
             Drawing.DrawText(250, 25, System.Drawing.Color.Gold,
                 "Combat, active:  " + active + " last mode: " + lastMode);
         }

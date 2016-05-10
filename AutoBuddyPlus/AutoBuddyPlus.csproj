@@ -59,7 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Disrespekt.cs" />
-    <Compile Include="MainLogics\SummonerSpells.cs" />
+    <Compile Include="MyChampLogic\Vayne.cs" />
     <Compile Include="MyChampLogic\Jinx.cs" />
     <Compile Include="MyChampLogic\Sivir.cs" />
     <Compile Include="MyChampLogic\Ezreal.cs" />

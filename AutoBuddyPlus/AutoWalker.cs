@@ -64,8 +64,8 @@ namespace AutoBuddy
                 Chat.Print("Please set hold radius through menu=>Orbwalker");
                 Chat.Print("Recommended values: Hold radius: 80-130, Delay between movements: 100-250");
             }
-            if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
-                Drawing.OnDraw += Drawing_OnDraw;
+            
+            Drawing.OnDraw += Drawing_OnDraw;
             
             Core.DelayAction(OnEndGame, 20000);
             updateItems();
@@ -122,13 +122,15 @@ namespace AutoBuddy
 
         private static void Drawing_OnDraw(EventArgs args)
         {
+            if (!MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
+                return;
+
             Circle.Draw(color,40, Target );
             for (int i = 0; i < PfNodes.Count-1; i++)
             {
                 if(PfNodes[i].IsOnScreen()||PfNodes[i+1].IsOnScreen())
                     Line.DrawLine(Color.Aqua, 4, PfNodes[i], PfNodes[i+1]);
             }
-        
         }
 
         public static void WalkTo(Vector3 tgt)
@@ -165,9 +167,6 @@ namespace AutoBuddy
                 }
             }
         }
-
-
-
 
         private static void updateItems()
         {
@@ -237,9 +236,8 @@ namespace AutoBuddy
             Smite = new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("smite"), 600);
 */
             Heal = new Spell.Active(ObjectManager.Player.GetSpellSlotFromName("summonerheal"), 600);
+            Barrier = new Spell.Active(ObjectManager.Player.GetSpellSlotFromName("summonerbarrier"));
         }
-
-
 
 #region old orbwalking, for those with not working orbwalker
 

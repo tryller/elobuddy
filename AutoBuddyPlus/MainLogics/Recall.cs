@@ -47,8 +47,7 @@ AutoBuddy won't recall if you have less gold than needed for next item.
                 spawn = so;
             }
             Core.DelayAction(ShouldRecall, 3000);
-            if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
-                Drawing.OnDraw += Drawing_OnDraw;
+            Drawing.OnDraw += Drawing_OnDraw;
         }
 
 
@@ -93,6 +92,9 @@ AutoBuddy won't recall if you have less gold than needed for next item.
 
         private void Drawing_OnDraw(EventArgs args)
         {
+            if (!MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
+                return;
+
             Drawing.DrawText(250, 55, System.Drawing.Color.Gold,
                 "Recall, active: " + active+" next item: "+ShopGlobals.Next+" gold needed:"+ShopGlobals.GoldForNextItem);
         }
@@ -145,6 +147,7 @@ AutoBuddy won't recall if you have less gold than needed for next item.
             lastRecallTime = Game.Time + 2f;
             Core.DelayAction(CastRecall2, 300);
         }
+
         private void CastRecall2()//Kappa
         {
             if (AutoWalker.Recalling() || ObjectManager.Player.Distance(spawn) < 500) return;

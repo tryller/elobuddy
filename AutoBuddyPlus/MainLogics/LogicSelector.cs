@@ -38,8 +38,8 @@ namespace AutoBuddy.MainLogics
 
             Core.DelayAction(() => loadLogic.SetLane(), 1000);
             localAwareness = new LocalAwareness();
-            if (MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
-                Drawing.OnEndScene += Drawing_OnDraw;
+            
+            Drawing.OnEndScene += Drawing_OnDraw;
             myChamp.Logic = this;
             AutoWalker.EndGame += end;
             Core.DelayAction(Watchdog, 3000);
@@ -49,6 +49,9 @@ namespace AutoBuddy.MainLogics
 
         private void Drawing_OnDraw(System.EventArgs args)
         {
+            if (!MainMenu.GetMenu("AB").Get<CheckBox>("debuginfo").CurrentValue)
+                return;
+
             Drawing.DrawText(250, 85, Color.Gold, current.ToString());
             Vector2 v = Game.CursorPos.WorldToScreen();
             Drawing.DrawText(v.X, v.Y - 20, Color.Gold, localAwareness.LocalDomination(Game.CursorPos) + " ");

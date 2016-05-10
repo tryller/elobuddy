@@ -25,7 +25,7 @@ namespace AutoBuddy
         private static IChampLogic myChamp;
         private static LogicSelector Logic { get; set; }
 
-        public static void Main()
+        private static void Main(string[] args)
         {
             Loading.OnLoadingComplete += Loading_OnLoadingComplete;
         }
@@ -52,8 +52,7 @@ namespace AutoBuddy
                 "Selected lane: Bot"
             };
             s.DisplayName = lanes[s.CurrentValue];
-            s.OnValueChange +=
-                delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
+            s.OnValueChange += delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
                 {
                     sender.DisplayName = lanes[changeArgs.NewValue];
                 };
@@ -72,7 +71,7 @@ namespace AutoBuddy
             menu.Add("sep2", new Separator(170));
             menu.Add("oldWalk", new CheckBox("Use old orbwalking(press f5 after)", false));
             menu.Add("reselectlane", new CheckBox("Reselect lane", false));
-            menu.Add("debuginfo", new CheckBox("Draw debug info(press f5 after)", true));
+            menu.Add("debuginfo", new CheckBox("Draw debug info", false));
             menu.Add("l1", new Label("By Christian Brutal Sniper - Updated and fixed by Tryller"));
         }
 
@@ -96,15 +95,18 @@ namespace AutoBuddy
                 case Champion.Caitlyn:
                     myChamp = new Caitlyn();
                     break;
-                default:
-                    generic = true;
-                    myChamp = new Generic();
-                    break;
                 case Champion.Ezreal:
                     myChamp = new Ezreal();
                     break;
                 case Champion.Cassiopeia:
                     myChamp = new Cassiopeia();
+                    break;
+                case Champion.Vayne:
+                    myChamp = new Vayne();
+                    break;
+                default:
+                    generic = true;
+                    myChamp = new Generic();
                     break;
             }
             CustomLvlSeq cl = new CustomLvlSeq(menu, AutoWalker.myHero, Path.Combine(Environment.GetFolderPath(
@@ -137,7 +139,6 @@ namespace AutoBuddy
             }
             Logic = new LogicSelector(myChamp, menu);
             new Disrespekt();
-            //new SummonerSpells().Init();
         }
 
         private static void createFS()
