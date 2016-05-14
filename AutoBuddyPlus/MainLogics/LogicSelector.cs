@@ -18,7 +18,7 @@ namespace AutoBuddy.MainLogics
         public readonly LocalAwareness localAwareness;
         public readonly Push pushLogic;
         public readonly Recall recallLogic;
-        public readonly Surrender surrender;
+        public readonly MiscEvents GameEvents;
         public readonly Survi surviLogic;
 
 
@@ -34,7 +34,7 @@ namespace AutoBuddy.MainLogics
             pushLogic = new Push(this);
             loadLogic = new Load(this);
             combatLogic = new Combat(this);
-            surrender = new Surrender();
+            GameEvents = new MiscEvents();
 
             Core.DelayAction(() => loadLogic.SetLane(), 1000);
             localAwareness = new LocalAwareness();

@@ -58,7 +58,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Disrespekt.cs" />
+    <Compile Include="MainLogics\MiscEvents.cs" />
+    <Compile Include="MyChampLogic\Tristana.cs" />
     <Compile Include="MyChampLogic\Vayne.cs" />
     <Compile Include="MyChampLogic\Jinx.cs" />
     <Compile Include="MyChampLogic\Sivir.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Utilities\AutoShop\EasyShopV2.cs" />
     <Compile Include="Utilities\AutoShop\BrutalItemInfo.cs" />
     <Compile Include="Utilities\AutoShop\LoLItem.cs" />
+    <Compile Include="Utilities\Geometry.cs" />
     <Compile Include="Utilities\Pathfinder\NavGraph.cs" />
     <Compile Include="Utilities\Pathfinder\NavGraphTest.cs" />
     <Compile Include="Utilities\Pathfinder\Node.cs" />
@@ -103,7 +105,6 @@
     <Compile Include="Humanizers\SafeFunctions.cs" />
     <Compile Include="Utilities\AutoLvl\LvlSlider.cs" />
     <Compile Include="Utilities\AutoLvl\SkillLevelUp.cs" />
-    <Compile Include="Utilities\Surrender.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

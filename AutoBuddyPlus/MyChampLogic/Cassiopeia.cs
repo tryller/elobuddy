@@ -162,8 +162,6 @@ namespace AutoBuddy.MyChampLogic
                        new Vector2(RandGen.r.NextFloat(-200, 200), RandGen.r.NextFloat(-200, 200))).To3D());
             }
 
-
-
             if (Orbwalker.ActiveModesFlags == Orbwalker.ActiveModes.Harass || Orbwalker.ActiveModesFlags == Orbwalker.ActiveModes.LaneClear)
             {
                 if (!EntityManager.Heroes.Enemies.Any(en => en.Distance(AutoWalker.myHero) < 650 + en.BoundingRadius))
