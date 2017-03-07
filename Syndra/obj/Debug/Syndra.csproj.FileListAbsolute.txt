@@ -1,0 +1,12 @@
+C:\ELOBUDDY\CHAMPIONS\Syndra\bin\Debug\Syndra.exe.config
+C:\ELOBUDDY\CHAMPIONS\Syndra\bin\Debug\Syndra.exe
+C:\ELOBUDDY\CHAMPIONS\Syndra\bin\Debug\Syndra.pdb
+C:\ELOBUDDY\CHAMPIONS\Syndra\bin\Debug\EloBuddy.dll
+C:\ELOBUDDY\CHAMPIONS\Syndra\bin\Debug\EloBuddy.SDK.dll
+C:\ELOBUDDY\CHAMPIONS\Syndra\bin\Debug\SharpDX.Direct3D9.dll
+C:\ELOBUDDY\CHAMPIONS\Syndra\bin\Debug\SharpDX.dll
+C:\ELOBUDDY\CHAMPIONS\Syndra\bin\Debug\Newtonsoft.Json.dll
+C:\ELOBUDDY\CHAMPIONS\Syndra\bin\Debug\EloBuddy.Sandbox.dll
+C:\ELOBUDDY\CHAMPIONS\Syndra\obj\Debug\Syndra.csprojResolveAssemblyReference.cache
+C:\ELOBUDDY\CHAMPIONS\Syndra\obj\Debug\Syndra.exe
+C:\ELOBUDDY\CHAMPIONS\Syndra\obj\Debug\Syndra.pdb
