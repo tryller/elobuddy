@@ -153,7 +153,7 @@ namespace WuAIO
         {
             base.PermaActive();
 
-            if (!R.IsReady() || Player.CountEnemiesInRange(1100) == 0) { WhyIDidThatAddonInsec = false; }
+            if (!R.IsReady() || Player.CountEnemyChampionsInRange(1100) == 0) { WhyIDidThatAddonInsec = false; }
 
             R.Width = 133 * (3 + R.Level);
 

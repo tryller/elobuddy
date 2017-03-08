@@ -215,7 +215,7 @@ namespace WuAIO
 
             if (Target == null || !Target.IsValidTarget()) return;
 
-            if (R.IsReady() && Player.CountEnemiesInRange(R.Range) >= combo.Value("r.minenemies"))
+            if (R.IsReady() && Player.CountEnemyChampionsInRange(R.Range) >= combo.Value("r.minenemies"))
                 R.Cast();
 
             if (Q.IsReady() && Target.IsValidTarget(Q.Range) && combo.IsActive("q"))
@@ -260,8 +260,8 @@ namespace WuAIO
 
             if (Minions != null)
             {
-                var FL = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(Minions, 280, (int)W.Range);
-
+                //var FL = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(Minions, 280, (int)W.Range);
+                var FL = W.GetBestCircularCastPosition(Minions, 80);
                 if (FL.HitNumber >= laneclear.Value("w.minminions")) W.Cast(FL.CastPosition);
             }
 

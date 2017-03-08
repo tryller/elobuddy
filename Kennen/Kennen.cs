@@ -181,7 +181,7 @@ namespace WuAIO
                 if (Q.IsReady() && Q.IsInRange(Target) && combo.IsActive("q")) Q.HitChanceCast(Target, combo.Value("q.hitchance%"));
             }
 
-            if (R.IsReady() && Player.CountEnemiesInRange(R.Range) >= combo.Value("r.minenemies") && combo.IsActive("r")) R.Cast();
+            if (R.IsReady() && Player.CountEnemyChampionsInRange(R.Range) >= combo.Value("r.minenemies") && combo.IsActive("r")) R.Cast();
 
             if (W.IsReady() && W.IsInRange(Target) && Target.HasBuff("kennenmarkofstorm") && combo.IsActive("w")) W.Cast();
 

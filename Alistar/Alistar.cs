@@ -250,7 +250,7 @@ namespace WuAIO
 
                 else if (Q.IsReady() && W.IsReady() && Target.IsValidTarget(625) && Player.Instance.Mana >= qwmana) { WQ(Target); Combing = true; }
 
-                if (R.IsReady() && combo.IsActive("r") && Player.Instance.CountEnemiesInRange(600) >= combo.Value("r.minenemies") && Player.Instance.HealthPercent <= combo.Value("r.health%")) R.Cast();
+                if (R.IsReady() && combo.IsActive("r") && Player.Instance.CountEnemyChampionsInRange(600) >= combo.Value("r.minenemies") && Player.Instance.HealthPercent <= combo.Value("r.health%")) R.Cast();
             }
 
             return;

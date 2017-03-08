@@ -216,10 +216,6 @@ namespace WuAIO
             if (E.IsReady() && E.IsInRange(Target) && combo.IsActive("e")) E.Cast();
 
             if (W.IsReady() && Player.Distance(Target) <= Player.GetAutoAttackRange() - 50 && combo.IsActive("w")) W.Cast();
-
-            return;
-
-            return;
         }
 
         public override void Harass()

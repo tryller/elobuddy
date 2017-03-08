@@ -221,7 +221,7 @@ namespace WuAIO
 
                 if (R.IsReady() && combo.IsActive("r"))
                 {
-                    if (Player.CountEnemiesInRange(650) >= combo.Value("r.minenemies")) R.Cast();
+                    if (Player.CountEnemyChampionsInRange(650) >= combo.Value("r.minenemies")) R.Cast();
                     else if (combo.IsActive("r.1v1logic") && (Player.HealthPercent <= 42 || Target.HealthPercent > 40)) R.Cast();
                 }
             }

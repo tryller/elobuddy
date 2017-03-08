@@ -324,7 +324,7 @@ namespace WuAIO
                             Q.Cast(IEMinions.First());
                             break;
                         case 1:
-                            if (Player.CountEnemiesInRange(700) == 0) Q.Cast(IEMinions.First());
+                            if (Player.CountEnemyChampionsInRange(700) == 0) Q.Cast(IEMinions.First());
                             break;
                         case 2:
                             if (!Player.HasBuff("pyromania_particle")) Q.Cast(IEMinions.First());
@@ -356,7 +356,7 @@ namespace WuAIO
                             Q.Cast(IEMinions.First());
                             break;
                         case 1:
-                            if (Player.CountEnemiesInRange(700) == 0) Q.Cast(IEMinions.First());
+                            if (Player.CountEnemyChampionsInRange(700) == 0) Q.Cast(IEMinions.First());
                             break;
                         case 2:
                             if (!Player.HasBuff("pyromania_particle")) Q.Cast(IEMinions.First());

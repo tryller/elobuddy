@@ -1,7 +1,6 @@
 ﻿using System;
 using EloBuddy;
 using EloBuddy.SDK.Events;
-using WuAIO.Managers;
 
 namespace WuAIO
 {
@@ -11,12 +10,10 @@ namespace WuAIO
 
         static void OnLoadingComplete(EventArgs args)
         {
-            VersionManager.CheckVersion();
-
             try
             {
                 Activator.CreateInstance(null, "WuAIO." + Player.Instance.ChampionName);
-                Chat.Print("Wu{0} Loaded, [By WujuSan], Version: {1}", Player.Instance.ChampionName == "MasterYi" ? "Yi" : Player.Instance.ChampionName, VersionManager.AssVersion);
+                Chat.Print("Wu{0} Loaded, [By WujuSan]", Player.Instance.ChampionName == "MasterYi" ? "Yi" : Player.Instance.ChampionName);
             }
             catch (Exception e)
             {
