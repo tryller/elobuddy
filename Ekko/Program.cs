@@ -501,15 +501,15 @@ namespace Ekko
             var useE = LaneClearMenu["LE"].Cast<CheckBox>().CurrentValue;
             var mana = LaneClearMenu["LM"].Cast<Slider>().CurrentValue;
             var Minq = LaneClearMenu["MinQ"].Cast<Slider>().CurrentValue;
-            var minionQ = EntityManager.MinionsAndMonsters.GetLaneMinions().Where(e => e.IsValidTarget(Q.Range));
-            var quang = EntityManager.MinionsAndMonsters.GetLineFarmLocation(minionQ, Q.Width, (int) Q.Range);
+            var qMinions = EntityManager.MinionsAndMonsters.GetLaneMinions().Where(e => e.IsValidTarget(Q.Range));
+            var quang =Q.GetBestLinearCastPosition(qMinions);
 
             if (Player.Instance.ManaPercent <= mana)
             {
                 return;
             }
 
-            foreach (var minion in minionQ)
+            foreach (var minion in qMinions)
             {
                 if (useQ && Q.CanCast(minion) && quang.HitNumber >= Minq)
                 {

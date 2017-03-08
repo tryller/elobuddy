@@ -511,10 +511,10 @@ namespace Ashe
             var useW = LaneClearMenu["ClearW"].Cast<CheckBox>().CurrentValue;
             var minW = LaneClearMenu["minw"].Cast<Slider>().CurrentValue;
             var mana = LaneClearMenu["manaFarm"].Cast<Slider>().CurrentValue;
-            var minionQ = EntityManager.MinionsAndMonsters.GetLaneMinions().Where(e => e.IsValidTarget(W.Range));
-            var quang = EntityManager.MinionsAndMonsters.GetLineFarmLocation(minionQ, W.Width, (int) W.Range);
+            var wMinions = EntityManager.MinionsAndMonsters.GetLaneMinions().Where(e => e.IsValidTarget(W.Range));
+            var quang = W.GetBestLinearCastPosition(wMinions);
             if (_Player.ManaPercent < mana) return;
-            foreach (var minion in minionQ)
+            foreach (var minion in wMinions)
             {
                 if (useW && W.IsReady() && minion.IsValidTarget(W.Range) && quang.HitNumber >= minW)
                 {

@@ -7,8 +7,8 @@
     <ProjectGuid>{6CE561E6-368D-4E58-BFBB-77F4E96EF5C5}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AddonTemplate</RootNamespace>
-    <AssemblyName>Akas Jarvan</AssemblyName>
+    <RootNamespace>Darius</RootNamespace>
+    <AssemblyName>Darius</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

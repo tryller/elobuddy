@@ -296,7 +296,7 @@ namespace Borki7
             var useE = ClearMenu["ClearE"].Cast<CheckBox>().CurrentValue;
             var Rocket = ClearMenu["RocketClear"].Cast<Slider>().CurrentValue;
             var minions = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, _Player.Position, R.Range).ToArray();
-            var QCal = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minions, Q.Width, (int)Q.Range);
+            var QCal = Q.GetBestCircularCastPosition(minions);
  
             if (Player.Instance.ManaPercent < mana)
             {
