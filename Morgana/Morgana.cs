@@ -260,8 +260,7 @@ namespace WuAIO
 
             if (Minions != null)
             {
-                //var FL = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(Minions, 280, (int)W.Range);
-                var FL = W.GetBestCircularCastPosition(Minions, 80);
+                var FL = W.GetBestCircularCastPosition(Minions);
                 if (FL.HitNumber >= laneclear.Value("w.minminions")) W.Cast(FL.CastPosition);
             }
 

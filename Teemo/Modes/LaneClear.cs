@@ -59,8 +59,7 @@ namespace PandaTeemoReborn.Modes
                     minions = minions.Where(m => !m.HasBuffOfType(BuffType.Poison));
                 }
 
-                var prediction = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(minions,
-                    R.Width, (int)R.Range);
+                var prediction = R.GetBestCircularCastPosition(minions);
                 if (prediction.HitNumber >= Extensions.MenuValues.LaneClear.MinionR)
                 {
                     R.Cast(prediction.CastPosition);

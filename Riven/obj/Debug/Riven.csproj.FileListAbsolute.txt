@@ -1,3 +1,0 @@
-C:\ELOBUDDY\CHAMPIONS\Riven\bin\Release\WuRiven.exe.config
-C:\ELOBUDDY\CHAMPIONS\Riven\obj\Debug\WuRiven.exe
-C:\ELOBUDDY\CHAMPIONS\Riven\obj\Debug\WuRiven.pdb

@@ -18,7 +18,7 @@ namespace RekSai.Modes
         public override void Execute()
         {
 
-            if (Player.Instance.CountEnemiesInRange(800) > 0)
+            if (Player.Instance.CountEnemyChampionsInRange(800) > 0)
             {
 
                 RekSai.ItemsManager.Yomuus();
@@ -63,7 +63,7 @@ namespace RekSai.Modes
                 if (Settings.UseE2 && E2.IsReady())
                 {
                     
-                    if (Player.Instance.CountEnemiesInRange(Settings.E2Distance) < 1)
+                    if (Player.Instance.CountEnemyChampionsInRange(Settings.E2Distance) < 1)
                     {
                         
                         if (targetE2.IsValidTarget())
@@ -94,7 +94,7 @@ namespace RekSai.Modes
 
                     if (Settings.UseW && W.IsReady())
                     {
-                        if (Player.Instance.CountEnemiesInRange(400) == 0)
+                        if (Player.Instance.CountEnemyChampionsInRange(400) == 0)
                         {
                             W.Cast();
                             return;

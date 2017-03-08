@@ -267,7 +267,7 @@ namespace Bloodimir_Sona
             if (Orbwalker.IsAutoAttacking && ComboMenu["waitAA"].Cast<CheckBox>().CurrentValue)
                 return;
             if (ComboMenu["usecomboq"].Cast<CheckBox>().CurrentValue)
-                if (Q.IsReady() && Sona.CountEnemiesInRange(Q.Range) >= 1)
+                if (Q.IsReady() && Sona.CountEnemyChampionsInRange(Q.Range) >= 1)
                 {
                     Q.Cast();
                 }
@@ -275,8 +275,7 @@ namespace Bloodimir_Sona
                 if (R.IsReady())
                 {
                     var predR = R.GetPrediction(target).CastPosition;
-                    //if (target.CountEnemiesInRange(R.Weidth) >= ComboMenu["rslider"].Cast<Slider>().CurrentValue)
-                    if (Sona.CountEnemiesInRange(R.Range) >= ComboMenu["rslider"].Cast<Slider>().CurrentValue)
+                    if (target.CountEnemyChampionsInRange(R.Width) >= ComboMenu["rslider"].Cast<Slider>().CurrentValue)
                         R.Cast(predR);
                 }
             if (ComboMenu["useitems"].Cast<CheckBox>().CurrentValue)

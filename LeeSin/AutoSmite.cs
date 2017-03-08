@@ -22,7 +22,7 @@ namespace LeeSin
                 return MenuManager.GetSubMenu("Smite");
             }
         }
-        private static string StealText = "";
+
         public static void Init()
         {
             if (SpellManager.Smite != null)

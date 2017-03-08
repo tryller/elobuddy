@@ -64,9 +64,7 @@ namespace PandaTeemoReborn.Modes
                     mobs = mobs.Where(m => Extensions.JungleMobsList.Contains(m.BaseSkinName));
                 }
 
-                var prediction = EntityManager.MinionsAndMonsters.GetCircularFarmLocation(mobs,
-                    R.Width, (int) R.Range);
-
+                var prediction = R.GetBestCircularCastPosition(mobs);
                 if (prediction.HitNumber >= Extensions.MenuValues.JungleClear.MobR)
                 {
                     R.Cast(prediction.CastPosition);
