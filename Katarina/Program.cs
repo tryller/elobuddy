@@ -216,10 +216,6 @@ namespace P1_Katarina
             AutoZhonya();
             AutoIgnite();
 
-            target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
-            if (target == null)
-                return;
-
             if (HarassAutoharass["AHQ"].Cast<CheckBox>().CurrentValue)
             {
                 CastQ(target);
