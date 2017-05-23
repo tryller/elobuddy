@@ -56,7 +56,6 @@ namespace P1_Katarina
 
 
         public static bool harassNeedToEBack = false;
-        private static AIHeroClient target;
 
         private static bool HasRBuff()
         {
@@ -200,7 +199,7 @@ namespace P1_Katarina
 
         private static void Game_OnTick(EventArgs args)
         {
-            target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
+            var target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
 
             if (HasRBuff())
             {
@@ -295,7 +294,7 @@ namespace P1_Katarina
                 }
 
 
-                target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
+                var target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
                 if (target.IsValidTarget() && !harassNeedToEBack)
                 {
                     Core.DelayAction(() => CastQ(target), HumanizerMenu["Q"].Cast<Slider>().CurrentValue + Game.Ping);
@@ -337,7 +336,7 @@ namespace P1_Katarina
 
         private static void Combo()
         {
-            target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
+            var target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
             if (E.IsReady() && Q.IsReady() && W.IsReady() && comboNum == 0)
             {
                 if (!HasRBuff() || (HasRBuff() && target.Health < QDamage(target) + WDamage(target) + EDamage(target) + (2f * SpinDamage(target))))
