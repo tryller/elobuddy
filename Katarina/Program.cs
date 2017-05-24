@@ -337,101 +337,24 @@ namespace P1_Katarina
 
         private static void Combo()
         {
-            var target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
-            if (E.IsReady() && Q.IsReady() && W.IsReady() && comboNum == 0)
-            {
-                if (!HasRBuff() || (HasRBuff() && target.Health < QDamage(target) + WDamage(target) + EDamage(target) + (2f * SpinDamage(target))))
-                    comboNum = 1;
-            }
+            target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
 
-            else if (E.IsReady() && Q.IsReady() && comboNum == 0)
-            {
-                if (!HasRBuff() || (HasRBuff() && target.Health < QDamage(target) + EDamage(target) + SpinDamage(target)))
-                    comboNum = 2;
-            }
-
-            else if (W.IsReady() && E.IsReady() && comboNum == 0)
-            {
-                if (!HasRBuff() || (HasRBuff() && target.Health < EDamage(target) + SpinDamage(target)))
-                    comboNum = 3;
-            }
-
-            else if (E.IsReady() && comboNum == 0)
-            {
-                if (!HasRBuff() || (HasRBuff() && target.Health < EDamage(target)))
-                    comboNum = 4;
-            }
-
-            else if (Q.IsReady() && comboNum == 0)
-            {
-                if (!HasRBuff() || (HasRBuff() && target.Health < QDamage(target)))
-                    comboNum = 5;
-            }
-
-            else if (W.IsReady() && comboNum == 0 && myHero.Distance(target) <= 300)
-            {
-                if (!HasRBuff())
-                    comboNum = 6;
-            }
-
-            else if (R.IsReady() && comboNum == 0 && myHero.Distance(target)<=400)
-                comboNum = 7;
-
-            //combo 1, Q W and E
-            if (comboNum == 1)
-            {
+            if (Q.IsReady() && target.IsValidTarget(Q.Range) && target != null && target.IsVisible && !target.IsDead)
                 CastQ(target);
+
+            if (E.IsReady() && target.IsValidTarget(E.Range) && target != null && target.IsVisible && !target.IsDead)
                 Core.DelayAction(() => CastE(myHero.Position.Extend(target.Position, myHero.Distance(target) + Game.Ping).To3D()), 0);
+
+            if (W.IsReady() && myHero.Distance(target.Position) <= W.Range)
+            {
                 Core.DelayAction(() => CastW(), 50 + Game.Ping);
-
-                if (Q.IsOnCooldown && W.IsOnCooldown && E.IsOnCooldown)
-                    comboNum = 0;
             }
 
-            //combo 2, Q and E
-            if (comboNum == 2)
+            if (R.IsReady() && myHero.Distance(target.Position) <= R.Range && target != null &&
+                    target.IsVisible && !target.IsDead && !Q.IsReady() && !W.IsReady() && !E.IsReady())
             {
-                CastQ(target);
-                Core.DelayAction(() => CastE(myHero.Position.Extend(target.Position, myHero.Distance(target) + Game.Ping).To3D()), 0);
-
-                if (Q.IsOnCooldown && E.IsOnCooldown)
-                    comboNum = 0;
-            }
-
-            //combo 3, W and E
-            if (comboNum == 3)
-            {
-                Core.DelayAction(() => CastE(myHero.Position.Extend(target.Position, myHero.Distance(target) + Game.Ping).To3D()), 0);
-                Core.DelayAction(() => CastW(), 50 + Game.Ping);
-
-                if (W.IsOnCooldown && E.IsOnCooldown)
-                    comboNum = 0;
-            }
-
-            //combo 4, E
-            if (comboNum == 4)
-            {
-                CastE(target.Position);
-                comboNum = 0;
-            }
-
-            //combo 5, Q
-            if (comboNum == 5)
-            {
-                CastQ(target);
-                comboNum = 0;
-            }
-
-            //combo 6, W
-            if (comboNum == 6)
-            {
-                CastW();
-                comboNum = 0;
-            }
-
-            //combo 7, R
-            if (comboNum == 7)
-            {
+                Orbwalker.DisableMovement = true;
+                Orbwalker.DisableAttacking = true;
                 R.Cast();
                 comboNum = 0;
             }
