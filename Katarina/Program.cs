@@ -129,7 +129,7 @@ namespace P1_Katarina
             HumanizerMenu.Add("R", new Slider("R delay", 130, 0, 1000));
 
             MiscMenu = KatarinaMenu.AddSubMenu("Misc");
-            MiscMenu.Add("minZhonyaHealth", new Slider("Minimum health % to use Zhonyas", 18, 0, 100));
+            MiscMenu.Add("saveHealth", new Slider("Minimum health % to use Zhonyas", 18, 0, 100));
 
             //Giving spells values
             Q = new Spell.Targeted(SpellSlot.Q, 600, DamageType.Magical);
@@ -219,9 +219,9 @@ namespace P1_Katarina
                 target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
                 if (target.IsValidTarget() && !harassNeedToEBack)
                 {
-                    Core.DelayAction(() => CastQ(target), HumanizerMenu["Q"].Cast<Slider>().CurrentValue + Game.Ping);
-                    Core.DelayAction(() => CastW(), HumanizerMenu["W"].Cast<Slider>().CurrentValue + 50 + Game.Ping);
-                    Core.DelayAction(() => CastE(target.Position), HumanizerMenu["E"].Cast<Slider>().CurrentValue + Game.Ping);
+                    Core.DelayAction(() => CastQ(target), HumanizerMenu["Q"].Cast<Slider>().CurrentValue);
+                    Core.DelayAction(() => CastW(), HumanizerMenu["W"].Cast<Slider>().CurrentValue + 50);
+                    Core.DelayAction(() => CastE(target.Position), HumanizerMenu["E"].Cast<Slider>().CurrentValue);
                     if (E.IsOnCooldown)
                         harassNeedToEBack = true;
                 }
@@ -261,8 +261,8 @@ namespace P1_Katarina
             if (!Zhonya.IsReady() || myHero.IsDead)
                 return;
 
-            if (myHero.HealthPercent <= MiscMenu["minZhonyaHealth"].Cast<Slider>().CurrentValue
-                && !myHero.IsRecalling() && myHero.CountEnemyChampionsInRange(1000) > 0)
+            if (myHero.HealthPercent <= MiscMenu["saveHealth"].Cast<Slider>().CurrentValue &&
+                !myHero.IsRecalling() && myHero.CountEnemyChampionsInRange(1000) > 0)
             {
                 Zhonya.Cast();
             }
@@ -275,7 +275,7 @@ namespace P1_Katarina
 
             var target = TargetSelector.GetTarget(650, DamageType.Magical);
             if (target.IsValidTarget(Ignite.Range) && target.Health < myHero.GetSummonerSpellDamage(target, DamageLibrary.SummonerSpells.Ignite))
-                Program.Ignite.Cast(target);
+                Ignite.Cast(target);
         }
 
 
@@ -343,11 +343,11 @@ namespace P1_Katarina
                 CastQ(target);
 
             if (E.IsReady() && target.IsValidTarget(E.Range) && target != null && target.IsVisible && !target.IsDead)
-                Core.DelayAction(() => CastE(myHero.Position.Extend(target.Position, myHero.Distance(target) + Game.Ping).To3D()), 0);
+                Core.DelayAction(() => CastE(myHero.Position.Extend(target.Position, myHero.Distance(target)).To3D()), 0);
 
             if (W.IsReady() && myHero.Distance(target.Position) <= W.Range)
             {
-                Core.DelayAction(() => CastW(), 50 + Game.Ping);
+                Core.DelayAction(() => CastW(), 50);
             }
 
             if (R.IsReady() && myHero.Distance(target.Position) <= R.Range && target != null &&
