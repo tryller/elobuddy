@@ -18,9 +18,7 @@ namespace P1_Katarina
 
         static void Main(string[] args)
         {
-            //happens when done loading
             Loading.OnLoadingComplete += Loading_OnLoadingComplete;
-
         }
 
         //makes Player.Instance Player
@@ -54,7 +52,7 @@ namespace P1_Katarina
         //Declare the menu
         private static Menu MiscMenu, KatarinaMenu, ComboMenu, LaneClearMenu, LastHitMenu, HarassAutoharass, KillStealMenu, HumanizerMenu;
 
-
+        private static AIHeroClient target;
         public static bool harassNeedToEBack = false;
 
         private static bool HasRBuff()
@@ -140,8 +138,122 @@ namespace P1_Katarina
             R = new Spell.Active(SpellSlot.R, 550, DamageType.Magical);
             Ignite = new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("summonerdot"), 600);
 
-            Drawing.OnEndScene += Damage_Indicator;
             Game.OnTick += Game_OnTick;
+            Game.OnTick += Game_OnTick1;
+        }
+
+        private static void Game_OnTick(EventArgs args)
+        {
+            target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
+
+            if (HasRBuff())
+            {
+                Orbwalker.DisableMovement = true;
+                Orbwalker.DisableAttacking = true;
+            }
+            else
+            {
+                Orbwalker.DisableMovement = false;
+                Orbwalker.DisableAttacking = false;
+            }
+
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
+            {
+                LaneClear();
+            }
+           else if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit))
+            {
+
+                LastHit();
+
+            }
+            else if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Combo))
+            {
+                Combo();
+            }
+            else if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Harass))
+            {
+                Harass();
+            }
+            else if (!Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Combo))
+            {
+                Orbwalker.DisableAttacking = false;
+            }
+
+            for (var index = daggers.Count - 1; index >= 0; index--)
+            {
+                if (myHero.Distance(daggers[index].Position) <= daggers[index].Width && Game.Time >= daggers[index].StartTime || daggers[index] == null || Game.Time >= daggers[index].EndTime)
+                {
+                    daggers.RemoveAt(index);
+
+                }
+            }
+
+            var DaggerFirst = ObjectManager.Get<Obj_AI_Minion>().LastOrDefault(a => a.Name == "HiddenMinion" && a.IsValid).Position;
+            if (ObjectManager.Get<Obj_AI_Minion>().LastOrDefault(a => a.Name == "HiddenMinion" && a.IsValid).Position != previouspos)
+            {
+                //print("Added dagger");
+                daggers.Add(new Dagger() { StartTime = Game.Time + 1.25f, EndTime = Game.Time + 5.1f, Position = ObjectManager.Get<Obj_AI_Minion>().LastOrDefault(a => a.Name == "HiddenMinion" && a.IsValid).Position });
+                previouspos = ObjectManager.Get<Obj_AI_Minion>().LastOrDefault(a => a.Name == "HiddenMinion" && a.IsValid).Position;
+            }
+        }
+ 
+        private static void Harass()
+        {
+
+            if (HarassAutoharass["HQ"].Cast<CheckBox>().CurrentValue && Q.IsReady())
+            {
+                target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
+                if (target.IsValidTarget())
+                    CastQ(target);
+            }
+            if (HarassAutoharass["CC"].Cast<CheckBox>().CurrentValue)
+            {
+                if (harassNeedToEBack && E.IsReady())
+                {
+                    myHero.Spellbook.CastSpell(E.Slot, wdaggerpos, false, false);
+                    harassNeedToEBack = false;
+                }
+
+
+                target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
+                if (target.IsValidTarget() && !harassNeedToEBack)
+                {
+                    Core.DelayAction(() => CastQ(target), HumanizerMenu["Q"].Cast<Slider>().CurrentValue + Game.Ping);
+                    Core.DelayAction(() => CastW(), HumanizerMenu["W"].Cast<Slider>().CurrentValue + 50 + Game.Ping);
+                    Core.DelayAction(() => CastE(target.Position), HumanizerMenu["E"].Cast<Slider>().CurrentValue + Game.Ping);
+                    if (E.IsOnCooldown)
+                        harassNeedToEBack = true;
+                }
+
+            }
+        }
+
+        private static void Game_OnTick1(EventArgs args)
+        {
+            AutoIgnite();
+            AutoZhonya();
+
+            if (HarassAutoharass["AHQ"].Cast<CheckBox>().CurrentValue)
+            {
+                target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
+                CastQ(target);
+            }
+            target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
+            if (QDamage(target) >= target.Health && KillStealMenu["Q"].Cast<CheckBox>().CurrentValue)
+                CastQ(target);
+            target = TargetSelector.GetTarget(W.Range, DamageType.Magical);
+            if (WDamage(target) >= target.Health && KillStealMenu["W"].Cast<CheckBox>().CurrentValue)
+                CastW();
+            target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
+            if (EDamage(target) >= target.Health && KillStealMenu["E"].Cast<CheckBox>().CurrentValue)
+                CastE(target.Position);
+            target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
+            if (EDamage(target) + WDamage(target) >= target.Health && KillStealMenu["EW"].Cast<CheckBox>().CurrentValue)
+            {
+                CastE(target.Position);
+                CastW();
+            }
         }
 
         public static void AutoZhonya()
@@ -150,7 +262,7 @@ namespace P1_Katarina
                 return;
 
             if (myHero.HealthPercent <= MiscMenu["minZhonyaHealth"].Cast<Slider>().CurrentValue
-                && !myHero.IsRecalling() && myHero.CountEnemyChampionsInRange(600) > 0)
+                && !myHero.IsRecalling() && myHero.CountEnemyChampionsInRange(1000) > 0)
             {
                 Zhonya.Cast();
             }
@@ -197,116 +309,6 @@ namespace P1_Katarina
             }
         }
 
-        private static void Game_OnTick(EventArgs args)
-        {
-            var target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
-
-            if (HasRBuff())
-            {
-                Orbwalker.DisableMovement = true;
-                Orbwalker.DisableAttacking = true;
-            }
-            else
-            {
-                Orbwalker.DisableMovement = false;
-                Orbwalker.DisableAttacking = false;
-            }
-
-            AutoZhonya();
-            AutoIgnite();
-
-            if (HarassAutoharass["AHQ"].Cast<CheckBox>().CurrentValue)
-            {
-                CastQ(target);
-            }
-
-            if (QDamage(target) >= target.Health && KillStealMenu["Q"].Cast<CheckBox>().CurrentValue)
-                CastQ(target);
-
-            if (WDamage(target) >= target.Health && KillStealMenu["W"].Cast<CheckBox>().CurrentValue)
-                CastW();
-
-            if (EDamage(target) >= target.Health && KillStealMenu["E"].Cast<CheckBox>().CurrentValue)
-                CastE(target.Position);
-
-            if (EDamage(target) + WDamage(target) >= target.Health && KillStealMenu["EW"].Cast<CheckBox>().CurrentValue)
-            {
-                CastE(target.Position);
-                CastW();
-            }
-
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
-            {
-                LaneClear();
-            }
-            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit))
-            {
-
-                LastHit();
-
-            }
-            if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Combo))
-            {
-                Combo();
-            }
-            if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Harass))
-            {
-                Harass();
-            }
-            if (!Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Combo))
-            {
-                Orbwalker.DisableAttacking = false;
-            }
-
-
-            for (var index = daggers.Count - 1; index >= 0; index--)
-            {
-                if (myHero.Distance(daggers[index].Position) <= daggers[index].Width && Game.Time >= daggers[index].StartTime || daggers[index] == null || Game.Time >= daggers[index].EndTime)
-                {
-                    daggers.RemoveAt(index);
-
-                }
-            }
-
-            var DaggerFirst = ObjectManager.Get<Obj_AI_Minion>().LastOrDefault(a => a.Name == "HiddenMinion" && a.IsValid).Position;
-            if (ObjectManager.Get<Obj_AI_Minion>().LastOrDefault(a => a.Name == "HiddenMinion" && a.IsValid).Position != previouspos)
-            {
-                daggers.Add(new Dagger() { StartTime = Game.Time + 1.25f, EndTime = Game.Time + 5.1f, Position = ObjectManager.Get<Obj_AI_Minion>().LastOrDefault(a => a.Name == "HiddenMinion" && a.IsValid).Position });
-                previouspos = ObjectManager.Get<Obj_AI_Minion>().LastOrDefault(a => a.Name == "HiddenMinion" && a.IsValid).Position;
-            }
-        }
-
-        private static void Harass()
-        {
-
-            if (HarassAutoharass["HQ"].Cast<CheckBox>().CurrentValue && Q.IsReady())
-            {
-                var target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
-                if (target.IsValidTarget())
-                    CastQ(target);
-            }
-            if (HarassAutoharass["CC"].Cast<CheckBox>().CurrentValue)
-            {
-                if (harassNeedToEBack && E.IsReady())
-                {
-                    myHero.Spellbook.CastSpell(E.Slot, wdaggerpos, false, false);
-                    harassNeedToEBack = false;
-                }
-
-
-                var target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
-                if (target.IsValidTarget() && !harassNeedToEBack)
-                {
-                    Core.DelayAction(() => CastQ(target), HumanizerMenu["Q"].Cast<Slider>().CurrentValue + Game.Ping);
-                    Core.DelayAction(() => CastW(), HumanizerMenu["W"].Cast<Slider>().CurrentValue + Game.Ping);
-                    Core.DelayAction(() => CastE(target.Position), HumanizerMenu["E"].Cast<Slider>().CurrentValue + Game.Ping);
-                    if (E.IsOnCooldown)
-                        harassNeedToEBack = true;
-                }
-
-            }
-        }
-
         private static void LaneClear()
         {
             var minions = EntityManager.MinionsAndMonsters.EnemyMinions.Where(a => a.Distance(Player.Instance) < Q.Range).OrderBy(a => a.Health);
@@ -317,8 +319,8 @@ namespace P1_Katarina
             {
                 CastQ(minion);
             }
-
         }
+
         private static void LastHit()
         {
 
@@ -331,7 +333,6 @@ namespace P1_Katarina
             {
                 CastQ(minion);
             }
-
         }
 
         private static void Combo()
@@ -435,44 +436,6 @@ namespace P1_Katarina
                 comboNum = 0;
             }
 
-        }
-
-        private static void Damage_Indicator(EventArgs args)
-        {
-
-            foreach (var unit in EntityManager.Heroes.Enemies.Where(x => x.VisibleOnScreen && x.IsValidTarget() && x.IsHPBarRendered))
-            {
-                var damage = 0f;
-                if (Q.IsReady() && W.IsReady() && E.IsReady())
-                    damage = QDamage(unit) + WDamage(unit) + EDamage(unit) + (2f * SpinDamage(unit));
-                else if (Q.IsReady() && W.IsReady())
-                    damage = QDamage(unit) + WDamage(unit) + SpinDamage(unit);
-                else if (Q.IsReady() && E.IsReady())
-                    damage = QDamage(unit) + EDamage(unit) + SpinDamage(unit);
-                else if (W.IsReady() && E.IsReady())
-                    damage = EDamage(unit) + WDamage(unit) + SpinDamage(unit);
-                else if (Q.IsReady())
-                    damage = QDamage(unit);
-                else if (W.IsReady())
-                    damage = WDamage(unit);
-                else if (E.IsReady())
-                    damage = EDamage(unit);
-                if (!R.IsOnCooldown)
-                    damage += RDamage(unit);
-                //Chat.Print(damage);
-                var Special_X = unit.ChampionName == "Jhin" || unit.ChampionName == "Annie" ? -12 : 0;
-                var Special_Y = unit.ChampionName == "Jhin" || unit.ChampionName == "Annie" ? -3 : 9;
-
-                var DamagePercent = ((unit.TotalShieldHealth() - damage) > 0
-                    ? (unit.TotalShieldHealth() - damage)
-                    : 0) / (unit.MaxHealth + unit.AllShield + unit.AttackShield + unit.MagicShield);
-                var currentHealthPercent = unit.TotalShieldHealth() / (unit.MaxHealth + unit.AllShield + unit.AttackShield + unit.MagicShield);
-                var StartPoint = new Vector2((int)(unit.HPBarPosition.X + DamagePercent * 107), (int)unit.HPBarPosition.Y - 5 + 14);
-                var EndPoint = new Vector2((int)(unit.HPBarPosition.X + currentHealthPercent * 107) + 1, (int)unit.HPBarPosition.Y - 5 + 14);
-
-                Drawing.DrawLine(StartPoint, EndPoint, 9.82f, System.Drawing.Color.SandyBrown);
-
-            }
         }
     }
 }
