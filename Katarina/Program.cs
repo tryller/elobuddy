@@ -124,6 +124,7 @@ namespace P1_Katarina
 
             MiscMenu = KatarinaMenu.AddSubMenu("Misc");
             MiscMenu.Add("saveHealth", new Slider("Minimum health % to use Zhonyas", 18, 0, 100));
+            MiscMenu.AddLabel("-------------");
             MiscMenu.Add("useHumanizer", new CheckBox("Use Humanize"));
             MiscMenu.Add("delayTime", new Slider("Delay time for distance", 150, 0, 1500));
             MiscMenu.Add("delayTimeCasts", new Slider("Delay time between casts", 120, 0, 1500));
