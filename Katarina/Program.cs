@@ -50,7 +50,7 @@ namespace P1_Katarina
         }
 
         //Declare the menu
-        private static Menu MiscMenu, KatarinaMenu, ComboMenu, LaneClearMenu, LastHitMenu, HarassAutoharass, KillStealMenu, HumanizerMenu;
+        private static Menu MiscMenu, KatarinaMenu, ComboMenu, LaneClearMenu, LastHitMenu, HarassAutoharass, KillStealMenu;
 
         private static AIHeroClient target;
         public static bool harassNeedToEBack = false;
@@ -59,7 +59,7 @@ namespace P1_Katarina
         {
             return Player.Instance.Spellbook.IsChanneling;
         }
- 
+
         public static float SpinDamage(Obj_AI_Base target)
         {
             return Player.Instance.CalculateDamageOnUnit(target, DamageType.Magical, ((myHero.Level / 1.75f) + 3f) * myHero.Level + 71.5f + 1.25f * (Player.Instance.TotalAttackDamage - Player.Instance.BaseAttackDamage) + myHero.TotalMagicalDamage * new[] { .55f, .70f, .80f, 1.00f }[R.Level]);
@@ -69,29 +69,29 @@ namespace P1_Katarina
         {
             if (Q.IsReady())
                 return Player.Instance.CalculateDamageOnUnit(target, DamageType.Magical, new[] { 0f, 75f, 105f, 135f, 165f, 195f }[Q.Level] + 0.3f * Player.Instance.TotalMagicalDamage);
-            else
-                return 0f;
+
+            return 0f;
         }
 
         public static float WDamage(Obj_AI_Base target)
         {
             return 0f;
         }
- 
+
         public static float EDamage(Obj_AI_Base target)
         {
             if (E.IsReady())
                 return Player.Instance.CalculateDamageOnUnit(target, DamageType.Magical, new[] { 0f, 25f, 40f, 55f, 70f, 85f }[E.Level] + 0.25f * Player.Instance.TotalMagicalDamage + 0.5f * myHero.TotalAttackDamage);
-            else
-                return 0f;
+
+            return 0f;
         }
 
         public static float RDamage(Obj_AI_Base target)
         {
             if (!R.IsOnCooldown)
                 return Player.Instance.CalculateDamageOnUnit(target, DamageType.Magical, (new[] { 0f, 375f, 562.5f, 750f }[R.Level] + 2.85f * Player.Instance.TotalMagicalDamage + 3.3f * (Player.Instance.TotalAttackDamage - Player.Instance.BaseAttackDamage)));
-            else
-                return 0f;
+           
+            return 0f;  
         }
 
         private static void Loading_OnLoadingComplete(EventArgs args)
@@ -122,14 +122,11 @@ namespace P1_Katarina
             KillStealMenu.Add("Q", new CheckBox("Use Q to killsteal"));
             KillStealMenu.Add("R", new CheckBox("Use R to killsteal", false));
 
-            HumanizerMenu = KatarinaMenu.AddSubMenu("Humanizer");
-            HumanizerMenu.Add("Q", new Slider("Q delay", 100, 0, 1000));
-            HumanizerMenu.Add("W", new Slider("W delay", 110, 0, 1000));
-            HumanizerMenu.Add("E", new Slider("E delay", 120, 0, 1000));
-            HumanizerMenu.Add("R", new Slider("R delay", 130, 0, 1000));
-
             MiscMenu = KatarinaMenu.AddSubMenu("Misc");
             MiscMenu.Add("saveHealth", new Slider("Minimum health % to use Zhonyas", 18, 0, 100));
+            MiscMenu.Add("useHumanizer", new CheckBox("Use Humanize"));
+            MiscMenu.Add("delayTime", new Slider("Delay time for distance", 150, 0, 1500));
+            MiscMenu.Add("delayTimeCasts", new Slider("Delay time between casts", 120, 0, 1500));
 
             //Giving spells values
             Q = new Spell.Targeted(SpellSlot.Q, 600, DamageType.Magical);
@@ -140,6 +137,61 @@ namespace P1_Katarina
 
             Game.OnTick += Game_OnTick;
             Game.OnTick += Game_OnTick1;
+            Spellbook.OnCastSpell += Spellbook_OnCastSpell;
+        }
+
+        private static DateTime assemblyLoadTime = DateTime.Now;
+        public class LatestCast
+        {
+            public static float Tick = 0;
+            public static float Timepass;
+            public static float X = 0;
+            public static float Y = 0;
+            public static double Distance;
+            public static double Delay;
+            public static int count = 0;
+            public static double SavedTime = 0;
+
+        }
+
+        public static float CurrentTick
+        {
+            get
+            {
+                return (int)DateTime.Now.Subtract(assemblyLoadTime).TotalMilliseconds;
+            }
+        }
+
+        public static void Spellbook_OnCastSpell(Spellbook sender, SpellbookCastSpellEventArgs eventArgs)
+        {
+            if (!MiscMenu["useHumanizer"].Cast<CheckBox>().CurrentValue)
+                return;
+
+            if (!sender.Owner.IsMe)
+                return;
+
+            var delayTime = MiscMenu["delayTime"].Cast<Slider>().CurrentValue;
+            var delayTimeCasts = MiscMenu["delayTimeCasts"].Cast<Slider>().CurrentValue;
+
+            Vector2 tempvect = new Vector2(LatestCast.X, LatestCast.Y);
+            LatestCast.Timepass = CurrentTick - LatestCast.Tick;
+
+            LatestCast.Distance = tempvect.Distance(eventArgs.StartPosition);
+            LatestCast.Delay = (LatestCast.Distance * 0.001 * delayTime); ;
+            if (CurrentTick < LatestCast.Tick + LatestCast.Delay && LatestCast.Timepass < 300)
+            {
+                eventArgs.Process = false;
+                LatestCast.count += 1;
+                LatestCast.SavedTime += LatestCast.Delay;
+
+            }
+
+            if (eventArgs.Process == true && LatestCast.Timepass > delayTimeCasts)
+            {
+                LatestCast.X = eventArgs.StartPosition.X;
+                LatestCast.Y = eventArgs.StartPosition.Y;
+                LatestCast.Tick = CurrentTick;
+            }
         }
 
         private static void Game_OnTick(EventArgs args)
@@ -161,7 +213,7 @@ namespace P1_Katarina
             {
                 LaneClear();
             }
-           else if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit))
+            else if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit))
             {
 
                 LastHit();
@@ -197,7 +249,7 @@ namespace P1_Katarina
                 previouspos = ObjectManager.Get<Obj_AI_Minion>().LastOrDefault(a => a.Name == "HiddenMinion" && a.IsValid).Position;
             }
         }
- 
+
         private static void Harass()
         {
 
@@ -219,9 +271,9 @@ namespace P1_Katarina
                 target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
                 if (target.IsValidTarget() && !harassNeedToEBack)
                 {
-                    Core.DelayAction(() => CastQ(target), HumanizerMenu["Q"].Cast<Slider>().CurrentValue);
-                    Core.DelayAction(() => CastW(), HumanizerMenu["W"].Cast<Slider>().CurrentValue + 50);
-                    Core.DelayAction(() => CastE(target.Position), HumanizerMenu["E"].Cast<Slider>().CurrentValue);
+                    CastQ(target);
+                    CastW();
+                    CastE(target.Position);
                     if (E.IsOnCooldown)
                         harassNeedToEBack = true;
                 }
@@ -278,13 +330,12 @@ namespace P1_Katarina
                 Ignite.Cast(target);
         }
 
-
         public static void CastQ(Obj_AI_Base target)
         {
             Q.Cast(target);
             qdaggerpos = ObjectManager.Get<Obj_AI_Minion>().LastOrDefault(a => a.Name == "HiddenMinion" && a.IsValid).Position;
         }
- 
+
         private static void CastW()
         {
             W.Cast();
@@ -338,27 +389,120 @@ namespace P1_Katarina
         private static void Combo()
         {
             target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
-
-            if (Q.IsReady() && target.IsValidTarget(Q.Range) && target != null && target.IsVisible && !target.IsDead)
-                CastQ(target);
-
-            if (E.IsReady() && target.IsValidTarget(E.Range) && target != null && target.IsVisible && !target.IsDead)
-                Core.DelayAction(() => CastE(myHero.Position.Extend(target.Position, myHero.Distance(target)).To3D()), 0);
-
-            if (W.IsReady() && myHero.Distance(target.Position) <= W.Range)
+            if (target != null && target.IsValidTarget(E.Range)
+    && !target.HasBuff("sionpassivezombie")               //sion Passive
+    && !target.HasBuff("KarthusDeathDefiedBuff")          //karthus passive
+    && !target.HasBuff("kogmawicathiansurprise")          //kog'maw passive
+    && !target.HasBuff("zyrapqueenofthorns")              //zyra passive
+    && !target.HasBuff("ChronoShift"))                     //zilean R
             {
-                Core.DelayAction(() => CastW(), 50);
-            }
+                AutoIgnite();
 
-            if (R.IsReady() && myHero.Distance(target.Position) <= R.Range && target != null &&
-                    target.IsVisible && !target.IsDead && !Q.IsReady() && !W.IsReady() && !E.IsReady())
-            {
-                Orbwalker.DisableMovement = true;
-                Orbwalker.DisableAttacking = true;
-                R.Cast();
-                comboNum = 0;
-            }
+                if (E.IsReady() && Q.IsReady() && W.IsReady() && comboNum == 0)
+                {
+                    if (!HasRBuff() || (HasRBuff() && target.Health < QDamage(target) + WDamage(target) + EDamage(target) + (2f * SpinDamage(target))))
+                        comboNum = 1;
+                }
 
+                else if (E.IsReady() && Q.IsReady() && comboNum == 0)
+                {
+                    if (!HasRBuff() || (HasRBuff() && target.Health < QDamage(target) + EDamage(target) + SpinDamage(target)))
+                        comboNum = 2;
+                }
+
+                else if (W.IsReady() && E.IsReady() && comboNum == 0)
+                {
+                    if (!HasRBuff() || (HasRBuff() && target.Health < EDamage(target) + SpinDamage(target)))
+                        comboNum = 3;
+                }
+
+                else if (E.IsReady() && comboNum == 0)
+                {
+                    if (!HasRBuff() || (HasRBuff() && target.Health < EDamage(target)))
+                        comboNum = 4;
+                }
+
+                else if (Q.IsReady() && comboNum == 0)
+                {
+                    if (!HasRBuff() || (HasRBuff() && target.Health < QDamage(target)))
+                        comboNum = 5;
+                }
+
+                else if (W.IsReady() && comboNum == 0 && myHero.Distance(target) <= 300)
+                {
+                    if (!HasRBuff())
+                        comboNum = 6;
+                }
+
+                else if (R.IsReady() && comboNum == 0 && myHero.Distance(target) <= 400)
+                    comboNum = 7;
+
+                //combo 1, Q W and E
+                if (comboNum == 1)
+                {
+                    CastQ(target);
+                    CastE(myHero.Position.Extend(target.Position, myHero.Distance(target) + 140).To3D());
+                    CastW();
+
+                    if (Q.IsOnCooldown && W.IsOnCooldown && E.IsOnCooldown)
+                        comboNum = 0;
+                }
+
+                //combo 2, Q and E
+                if (comboNum == 2)
+                {
+                    CastQ(target);
+                    CastE(myHero.Position.Extend(target.Position, myHero.Distance(target) + 140).To3D());
+
+                    if (Q.IsOnCooldown && E.IsOnCooldown)
+                        comboNum = 0;
+                }
+
+                //combo 3, W and E
+                if (comboNum == 3)
+                {
+                    CastE(myHero.Position.Extend(target.Position, myHero.Distance(target) + 140).To3D());
+                    CastW();
+
+
+                    if (W.IsOnCooldown && E.IsOnCooldown)
+                        comboNum = 0;
+                }
+
+                //combo 4, E
+                if (comboNum == 4)
+                {
+                    CastE(target.Position);
+                    comboNum = 0;
+                }
+
+                //combo 5, Q
+                if (comboNum == 5)
+                {
+                    CastQ(target);
+                    comboNum = 0;
+                }
+
+                //combo 6, W
+                if (comboNum == 6)
+                {
+                    CastW();
+                    comboNum = 0;
+                }
+
+                //combo 7, R
+                if (comboNum == 7)
+                {
+                    if (R.IsReady() && myHero.Distance(target.Position) <= R.Range && target != null &&
+                        target.IsVisible && !target.IsDead && !Q.IsReady() && !W.IsReady() && !E.IsReady())
+                    {
+                        Orbwalker.DisableMovement = true;
+                        Orbwalker.DisableAttacking = true;
+                        R.Cast();
+                        comboNum = 0;
+                    }
+                }
+            }
         }
     }
 }
