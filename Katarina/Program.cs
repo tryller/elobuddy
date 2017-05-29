@@ -14,7 +14,9 @@ namespace P1_Katarina
 {
     class Program
     {
-        private static readonly Item Zhonya = new Item(3157);
+        private static Item Zhonya = new Item(3157);
+        private static Item Bilgewater_Cutlass = new Item(3144);
+        private static Item Hextech_Gunblade = new Item(3146);
 
         static void Main(string[] args)
         {
@@ -38,7 +40,6 @@ namespace P1_Katarina
         public static List<Vector2> daggerpos = new List<Vector2>();
         public static Vector3 qdaggerpos;
         public static Vector3 wdaggerpos;
-        public static int comboNum;
 
 
         public class Dagger
@@ -90,8 +91,8 @@ namespace P1_Katarina
         {
             if (!R.IsOnCooldown)
                 return Player.Instance.CalculateDamageOnUnit(target, DamageType.Magical, (new[] { 0f, 375f, 562.5f, 750f }[R.Level] + 2.85f * Player.Instance.TotalMagicalDamage + 3.3f * (Player.Instance.TotalAttackDamage - Player.Instance.BaseAttackDamage)));
-           
-            return 0f;  
+
+            return 0f;
         }
 
         private static void Loading_OnLoadingComplete(EventArgs args)
@@ -389,119 +390,41 @@ namespace P1_Katarina
 
         private static void Combo()
         {
+            if (HasRBuff())
+                return;
+
             target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
-            if (target != null && target.IsValidTarget(E.Range)
-    && !target.HasBuff("sionpassivezombie")               //sion Passive
-    && !target.HasBuff("KarthusDeathDefiedBuff")          //karthus passive
-    && !target.HasBuff("kogmawicathiansurprise")          //kog'maw passive
-    && !target.HasBuff("zyrapqueenofthorns")              //zyra passive
-    && !target.HasBuff("ChronoShift"))                     //zilean R
+            if (target != null && target.IsValidTarget(E.Range) && !target.HasBuff("sionpassivezombie") //sion Passive
+                && !target.HasBuff("KarthusDeathDefiedBuff") //karthus passive
+                && !target.HasBuff("kogmawicathiansurprise")          //kog'maw passive
+                && !target.HasBuff("zyrapqueenofthorns")              //zyra passive
+                && !target.HasBuff("ChronoShift"))                     //zilean R
             {
                 AutoIgnite();
+                if (Bilgewater_Cutlass.IsOwned() && Bilgewater_Cutlass.IsReady())
+                    Bilgewater_Cutlass.Cast(target);
 
-                if (E.IsReady() && Q.IsReady() && W.IsReady() && comboNum == 0)
-                {
-                    if (!HasRBuff() || (HasRBuff() && target.Health < QDamage(target) + WDamage(target) + EDamage(target) + (2f * SpinDamage(target))))
-                        comboNum = 1;
-                }
+                if (Hextech_Gunblade.IsOwned() && Hextech_Gunblade.IsReady())
+                    Hextech_Gunblade.Cast(target);
 
-                else if (E.IsReady() && Q.IsReady() && comboNum == 0)
-                {
-                    if (!HasRBuff() || (HasRBuff() && target.Health < QDamage(target) + EDamage(target) + SpinDamage(target)))
-                        comboNum = 2;
-                }
-
-                else if (W.IsReady() && E.IsReady() && comboNum == 0)
-                {
-                    if (!HasRBuff() || (HasRBuff() && target.Health < EDamage(target) + SpinDamage(target)))
-                        comboNum = 3;
-                }
-
-                else if (E.IsReady() && comboNum == 0)
-                {
-                    if (!HasRBuff() || (HasRBuff() && target.Health < EDamage(target)))
-                        comboNum = 4;
-                }
-
-                else if (Q.IsReady() && comboNum == 0)
-                {
-                    if (!HasRBuff() || (HasRBuff() && target.Health < QDamage(target)))
-                        comboNum = 5;
-                }
-
-                else if (W.IsReady() && comboNum == 0 && myHero.Distance(target) <= 300)
-                {
-                    if (!HasRBuff())
-                        comboNum = 6;
-                }
-
-                else if (R.IsReady() && comboNum == 0 && myHero.Distance(target) <= 400)
-                    comboNum = 7;
-
-                //combo 1, Q W and E
-                if (comboNum == 1)
-                {
+                //Q
+                if (Q.IsReady())
                     CastQ(target);
-                    CastE(myHero.Position.Extend(target.Position, myHero.Distance(target) + 140).To3D());
-                    CastW();
 
-                    if (Q.IsOnCooldown && W.IsOnCooldown && E.IsOnCooldown)
-                        comboNum = 0;
-                }
-
-                //combo 2, Q and E
-                if (comboNum == 2)
-                {
-                    CastQ(target);
+                //E
+                if (E.IsReady() && Q.IsOnCooldown)
                     CastE(myHero.Position.Extend(target.Position, myHero.Distance(target) + 140).To3D());
 
-                    if (Q.IsOnCooldown && E.IsOnCooldown)
-                        comboNum = 0;
-                }
-
-                //combo 3, W and E
-                if (comboNum == 3)
-                {
-                    CastE(myHero.Position.Extend(target.Position, myHero.Distance(target) + 140).To3D());
+                if (W.IsReady() && Q.IsOnCooldown && E.IsOnCooldown && myHero.CountEnemyChampionsInRange(250) > 0)
                     CastW();
 
-
-                    if (W.IsOnCooldown && E.IsOnCooldown)
-                        comboNum = 0;
-                }
-
-                //combo 4, E
-                if (comboNum == 4)
-                {
-                    CastE(target.Position);
-                    comboNum = 0;
-                }
-
-                //combo 5, Q
-                if (comboNum == 5)
-                {
-                    CastQ(target);
-                    comboNum = 0;
-                }
-
-                //combo 6, W
-                if (comboNum == 6)
-                {
-                    CastW();
-                    comboNum = 0;
-                }
-
-                //combo 7, R
-                if (comboNum == 7)
-                {
-                    if (R.IsReady() && myHero.Distance(target.Position) <= R.Range && target != null &&
+                //R
+                if (R.IsReady() && myHero.Distance(target.Position) <= R.Range && target != null &&
                         target.IsVisible && !target.IsDead && !Q.IsReady() && !W.IsReady() && !E.IsReady())
-                    {
-                        Orbwalker.DisableMovement = true;
-                        Orbwalker.DisableAttacking = true;
-                        R.Cast();
-                        comboNum = 0;
-                    }
+                {
+                    Orbwalker.DisableMovement = true;
+                    Orbwalker.DisableAttacking = true;
+                    R.Cast();
                 }
             }
         }
