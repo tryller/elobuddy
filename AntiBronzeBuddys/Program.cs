@@ -11,7 +11,9 @@ namespace AntiBronzeBuddys
 {
     class Program
     {
-        static List<string> _allowed = new List<string> { "/mute all", "/msg", "/r", "/w", "/surrender", "/nosurrender", "/help", "/dance", "/d", "/taunt", "/t", "/joke", "/j", "/laugh", "/l", "/ff" };
+        static List<string> palavarBloqueadas = new List<string> {
+                "cu", "noob", "retardado", "mongol", "fuck", "fuckoff", "lixo", "retardado", "doente",
+        "script", "scripter", "scripting"};
 
         static void Main(string[] args)
         {
@@ -26,12 +28,9 @@ namespace AntiBronzeBuddys
 
         private static void Chat_OnInput(ChatInputEventArgs args)
         {
-            args.Process = false;
-
-            if (_allowed.Any(str => args.Input.StartsWith(str)))
-            {
-                args.Process = true;
-            }
+            args.Process = true;
+            if (palavarBloqueadas.Any(str => args.Input.StartsWith(str)))
+                args.Process = false;
         }
     }
 }
