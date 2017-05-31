@@ -56,7 +56,7 @@ namespace P1_Katarina
         private static AIHeroClient target;
         public static bool harassNeedToEBack = false;
 
-        private static bool HasRBuff()
+        private static bool GetRBufff()
         {
             return Player.Instance.Spellbook.IsChanneling;
         }
@@ -200,7 +200,7 @@ namespace P1_Katarina
         {
             target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
 
-            if (HasRBuff())
+            if (GetRBufff())
             {
                 Orbwalker.DisableMovement = true;
                 Orbwalker.DisableAttacking = true;
@@ -287,22 +287,25 @@ namespace P1_Katarina
         {
             AutoIgnite();
             AutoZhonya();
+            target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
+            if (target == null)
+                return;
 
             if (HarassAutoharass["AHQ"].Cast<CheckBox>().CurrentValue)
             {
-                target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
+
                 CastQ(target);
             }
-            target = TargetSelector.GetTarget(Q.Range, DamageType.Magical);
+
             if (QDamage(target) >= target.Health && KillStealMenu["Q"].Cast<CheckBox>().CurrentValue)
                 CastQ(target);
-            target = TargetSelector.GetTarget(W.Range, DamageType.Magical);
+
             if (WDamage(target) >= target.Health && KillStealMenu["W"].Cast<CheckBox>().CurrentValue)
                 CastW();
-            target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
+
             if (EDamage(target) >= target.Health && KillStealMenu["E"].Cast<CheckBox>().CurrentValue)
                 CastE(target.Position);
-            target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
+
             if (EDamage(target) + WDamage(target) >= target.Health && KillStealMenu["EW"].Cast<CheckBox>().CurrentValue)
             {
                 CastE(target.Position);
@@ -346,7 +349,7 @@ namespace P1_Katarina
 
         private static void CastE(Vector3 target)
         {
-            if (daggers.Count == 0 && !HasRBuff())
+            if (daggers.Count == 0 && !GetRBufff())
                 E.Cast(target);
             foreach (Dagger dagger in daggers)
             {
@@ -390,15 +393,15 @@ namespace P1_Katarina
 
         private static void Combo()
         {
-            if (HasRBuff())
+            if (GetRBufff())
                 return;
 
             target = TargetSelector.GetTarget(E.Range, DamageType.Magical);
             if (target != null && target.IsValidTarget(E.Range) && !target.HasBuff("sionpassivezombie") //sion Passive
                 && !target.HasBuff("KarthusDeathDefiedBuff") //karthus passive
-                && !target.HasBuff("kogmawicathiansurprise")          //kog'maw passive
-                && !target.HasBuff("zyrapqueenofthorns")              //zyra passive
-                && !target.HasBuff("ChronoShift"))                     //zilean R
+                && !target.HasBuff("kogmawicathiansurprise") //kog'maw passive
+                && !target.HasBuff("zyrapqueenofthorns") //zyra passive
+                && !target.HasBuff("ChronoShift")) //zilean R
             {
                 AutoIgnite();
                 if (Bilgewater_Cutlass.IsOwned() && Bilgewater_Cutlass.IsReady())
@@ -415,6 +418,7 @@ namespace P1_Katarina
                 if (E.IsReady() && Q.IsOnCooldown)
                     CastE(myHero.Position.Extend(target.Position, myHero.Distance(target) + 140).To3D());
 
+                //W
                 if (W.IsReady() && Q.IsOnCooldown && E.IsOnCooldown && myHero.CountEnemyChampionsInRange(250) > 0)
                     CastW();
 
