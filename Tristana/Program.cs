@@ -6,11 +6,7 @@ using EloBuddy.SDK.Enumerations;
 using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
-using EloBuddy.SDK.Rendering;
 using SharpDX;
-using Font = SharpDX.Direct3D9.Font;
-using SharpDX.Direct3D9;
-using Color = System.Drawing.Color;
 
 namespace Tristana
 {
@@ -20,7 +16,7 @@ namespace Tristana
         public static Spell.Skillshot W;
         public static Spell.Targeted E;
         public static Spell.Targeted R;
-        public static Font Thm;
+
         public static AIHeroClient _Player
         {
             get { return ObjectManager.Player; }
@@ -43,7 +39,7 @@ namespace Tristana
             W = new Spell.Skillshot(SpellSlot.W, 900, SkillShotType.Circular, 450, int.MaxValue, 180);
             E = new Spell.Targeted(SpellSlot.E, 550 + level * 7);
             R = new Spell.Targeted(SpellSlot.R, 550 + level * 7);
-            Thm = new Font(Drawing.Direct3DDevice, new FontDescription { FaceName = "Tahoma", Height = 32, Weight = FontWeight.Bold, OutputPrecision = FontPrecision.Default, Quality = FontQuality.ClearType });
+
             Menu = MainMenu.AddMenu("Doctor's Tristana", "Tristana");
             SpellMenu = Menu.AddSubMenu("Combo Settings", "Combo");
             SpellMenu.AddGroupLabel("Combo Settings");
@@ -90,20 +86,14 @@ namespace Tristana
             JungleMenu.Add("jungleW", new CheckBox("Use [W] JungleClear", false));
             JungleMenu.Add("manaJung", new Slider("Min Mana For JungleClear", 50, 0, 100));
 
-            Misc = Menu.AddSubMenu("Misc Settings", "Draw");
+            Misc = Menu.AddSubMenu("Misc Settings", "Misc");
             Misc.AddGroupLabel("Anti Gapcloser");
             Misc.Add("antiGap", new CheckBox("Anti Gapcloser", false));
             Misc.Add("antiRengar", new CheckBox("Anti Rengar"));
             Misc.Add("antiKZ", new CheckBox("Anti Kha'Zix"));
             Misc.Add("inter", new CheckBox("Use [R] Interupt", false));
-            Misc.AddGroupLabel("Drawings Settings");
-            Misc.Add("Draw_Disabled", new CheckBox("Disabled Drawings", false));
-            Misc.Add("DrawE", new CheckBox("Draw Attack Range"));
-            Misc.Add("DrawW", new CheckBox("Draw [W]", false));
-            Misc.Add("Notifications", new CheckBox("Alerter Can Kill With [R]"));
 
-            Game.OnUpdate += Game_OnUpdate;
-            Drawing.OnDraw += Drawing_OnDraw;
+            Game.OnTick += Game_OnTick;
             Gapcloser.OnGapcloser += Gapcloser_OnGapCloser;
             Interrupter.OnInterruptableSpell += Interupt;
             GameObject.OnCreate += GameObject_OnCreate;
@@ -269,10 +259,6 @@ namespace Tristana
             }
         }
 
-        private static void DrawFont(Font vFont, string vText, float vPosX, float vPosY, ColorBGRA vColor)
-        {
-            vFont.DrawText(null, vText, (int)vPosX, (int)vPosY, vColor);
-        }
 
 // Anti Rengar
 
@@ -373,30 +359,6 @@ namespace Tristana
             }
         }
 
-// Drawings
-
-        private static void Drawing_OnDraw(EventArgs args)
-        {
-            if (_Player.IsDead) return;
-            if (Misc["Draw_Disabled"].Cast<CheckBox>().CurrentValue) return;
-            if (Misc["DrawE"].Cast<CheckBox>().CurrentValue)
-            {
-                new Circle() { Color = Color.Orange, BorderWidth = 1, Radius = E.Range }.Draw(_Player.Position);
-            }
-            if (Misc["DrawW"].Cast<CheckBox>().CurrentValue && W.IsReady())
-            {
-                new Circle() { Color = Color.Orange, BorderWidth = 1, Radius = W.Range }.Draw(_Player.Position);
-            }
-            if (Misc["Notifications"].Cast<CheckBox>().CurrentValue && R.IsReady())
-            {
-                var target = TargetSelector.GetTarget(R.Range, DamageType.Physical);
-                Vector2 ft = Drawing.WorldToScreen(_Player.Position);
-                if (target.IsValidTarget(1000) && Player.Instance.GetSpellDamage(target, SpellSlot.R) > target.Health + target.AttackShield)
-                {
-                    DrawFont(Thm, "[R] Can Killable " + target.ChampionName, (float)(ft[0] - 140), (float)(ft[1] + 80), SharpDX.Color.Red);
-                }
-            }
-        }
 
 // Under Turet
 
@@ -407,7 +369,7 @@ namespace Tristana
 
 // Game Update
 
-        private static void Game_OnUpdate(EventArgs args)
+        private static void Game_OnTick(EventArgs args)
         {
             uint level = (uint)Player.Instance.Level;
             E = new Spell.Targeted(SpellSlot.E, 550 + level * 7);
