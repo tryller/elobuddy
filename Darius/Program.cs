@@ -1,21 +1,15 @@
 ﻿using System;
-using System.Diagnostics;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Rendering;
 using SharpDX;
 using SettingsMisc = AddonTemplate.Config.Modes.MiscMenu;
-using SettingsDraw = AddonTemplate.Config.Modes.Drawing;
 using SettingsItems = AddonTemplate.Config.Modes.Items;
 namespace AddonTemplate
 {
     public static class Program
     {
-        // Change this line to the champion you want to make the addon for,
-        // watch out for the case being correct!
-        public const string ChampName = "Darius";
-
         public static void Main(string[] args)
         {
             // Wait till the loading screen has passed
@@ -25,7 +19,7 @@ namespace AddonTemplate
         private static void OnLoadingComplete(EventArgs args)
         {
             // Verify the champion we made this addon for
-            if (Player.Instance.ChampionName != ChampName)
+            if (Player.Instance.ChampionName != "Darius")
             {
                 // Champion is not the one we made this addon for,
                 // therefore we return
@@ -38,41 +32,8 @@ namespace AddonTemplate
             ModeManager.Initialize();
 
             // Listen to events we need
-            Drawing.OnDraw += OnDraw;
             Obj_AI_Base.OnBuffGain += BuffGain;
 
-        }
-
-        private static void OnDraw(EventArgs args)
-        {
-            if (SettingsDraw.UseQ)
-            {
-                if (!(SettingsDraw.DrawOnlyReady && !SpellManager.Q.IsReady()))
-                {
-                        Circle.Draw(Color.Red, SpellManager.Q.Range, Player.Instance.Position);
-                }
-            }
-            if (SettingsDraw.UseW)
-            {
-                if (!(SettingsDraw.DrawOnlyReady && !SpellManager.W.IsReady()))
-                {
-                        Circle.Draw(Color.Red, SpellManager.W.Range, Player.Instance.Position);                    
-                }
-            }
-            if (SettingsDraw.UseE)
-            {
-                if (!(SettingsDraw.DrawOnlyReady && !SpellManager.E.IsReady()))
-                {
-                    Circle.Draw(Color.Red, SpellManager.E.Range, Player.Instance.Position);                  
-                }
-            }
-            if (SettingsDraw.UseR)
-            {
-                if (!(SettingsDraw.DrawOnlyReady && !SpellManager.R.IsReady()))
-                {
-                    Circle.Draw(Color.Red, SpellManager.R.Range, Player.Instance.Position);
-                }
-            }
         }
 
         public static void BuffGain(Obj_AI_Base sender, Obj_AI_BaseBuffGainEventArgs buff)

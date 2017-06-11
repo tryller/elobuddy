@@ -1,5 +1,4 @@
-﻿using AddonTemplate;
-using EloBuddy;
+﻿using EloBuddy;
 using EloBuddy.SDK;
 
 namespace AddonTemplate

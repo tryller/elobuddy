@@ -17,16 +17,15 @@ namespace AddonTemplate.Modes
 
         public override void Execute()
         {
-            var itarget = TargetSelector.GetTarget(1000, DamageType.Physical);
-            Items.UseItems(itarget);
+            var target = TargetSelector.GetTarget(E.Range, DamageType.Physical);
+            Items.UseItems(target);
 
             if (Settings.UseE)
             {
-                var etarget = TargetSelector.GetTarget(E.Range, DamageType.Physical);
-                var eprediction = E.GetPrediction(etarget);
+                var eprediction = E.GetPrediction(target);
                 if (eprediction.HitChance >= HitChance.High)
                 {
-                    if (E.IsReady() && etarget != null)
+                    if (E.IsReady() && target != null)
                     {
                         E.Cast(eprediction.CastPosition);
                     }
@@ -35,7 +34,6 @@ namespace AddonTemplate.Modes
 
             if (Settings.UseW)
             {
-                var target = TargetSelector.GetTarget(W.Range, DamageType.Physical);
                 if (W.IsReady() && target != null)
                 {
                     W.Cast();
@@ -44,17 +42,14 @@ namespace AddonTemplate.Modes
 
             if (Settings.UseQ)
             {
-                var target = TargetSelector.GetTarget(Q.Range, DamageType.Physical);
-                    if (Q.IsReady() && target != null)
-                    {
-                        Q.Cast();
-                    }              
+                if (Q.IsReady() && target != null)
+                {
+                    Q.Cast();
+                }
             }
 
             if (Settings.UseR && R.IsReady())
             {
-                var target = TargetSelector.GetTarget(E.Range, DamageType.Physical);
-
                 if (target.IsValidTarget(R.Range) && !target.IsZombie && !target.IsInvulnerable && !target.IsDead)
                 {
                     int passiveCounter = target.GetBuffCount("dariushemo") <= 0 ? 0 : target.GetBuffCount("dariushemo");

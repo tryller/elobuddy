@@ -45,6 +45,12 @@ namespace AddonTemplate.Modes
             {
                 Item.UseItem((int)ItemId.Randuins_Omen);
             }
+
+            if (Item.HasItem((int)ItemId.Titanic_Hydra, ObjectManager.Player) && Item.CanUseItem((int)ItemId.Titanic_Hydra)
+                && ObjectManager.Player.Distance(unit.Position) <= 150)
+            {
+                Item.UseItem((int)ItemId.Titanic_Hydra);
+            }
         }
     }
 }

@@ -54,8 +54,6 @@ namespace AddonTemplate
                 Menu.AddSeparator();
                 MiscMenu.Initialize();
                 Menu.AddSeparator();
-                Drawing.Initialize();
-                Menu.AddSeparator();
                 Items.Initialize();
 
             }
@@ -276,55 +274,6 @@ namespace AddonTemplate
                     _KSW = Menu.Add("KSE", new CheckBox("Ks W"));
                     _KSR = Menu.Add("KSR", new CheckBox("Ks R"));
                     _InterruptE = Menu.Add("InterruptEQ", new CheckBox("Interrupt Spells using E?"));
-                }
-
-                public static void Initialize()
-                {
-                }
-            }
-
-            public static class Drawing
-            {
-                private static readonly CheckBox _useQ;
-                private static readonly CheckBox _useW;
-                private static readonly CheckBox _useE;
-                private static readonly CheckBox _useR;
-                private static readonly CheckBox _DrawonlyReady;
-
-                public static bool UseQ
-                {
-                    get { return _useQ.CurrentValue; }
-                }
-
-                public static bool UseW
-                {
-                    get { return _useW.CurrentValue; }
-                }
-
-                public static bool UseE
-                {
-                    get { return _useE.CurrentValue; }
-                }
-
-                public static bool UseR
-                {
-                    get { return _useR.CurrentValue; }
-                }
-
-                public static bool DrawOnlyReady
-                {
-                    get { return _DrawonlyReady.CurrentValue; }
-                }
-
-                static Drawing()
-                {
-                    // Initialize the menu values
-                    Menu.AddGroupLabel("Drawings?");
-                    _useQ = Menu.Add("DrawQ", new CheckBox("Draw Q"));
-                    _useW = Menu.Add("DrawW", new CheckBox("Draw W"));
-                    _useE = Menu.Add("DrawE", new CheckBox("Draw E"));
-                    _useR = Menu.Add("DrawR", new CheckBox("Draw R"));
-                    _DrawonlyReady = Menu.Add("DrawOnlyReady", new CheckBox("Draw Only if Spells are ready"));
                 }
 
                 public static void Initialize()
