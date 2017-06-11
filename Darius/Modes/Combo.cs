@@ -1,6 +1,8 @@
 ﻿using EloBuddy;
 using EloBuddy.SDK;
+using SharpDX;
 using EloBuddy.SDK.Enumerations;
+using System.Collections.Generic;
 
 // Using the config like this makes your life easier, trust me
 using Settings = AddonTemplate.Config.Modes.Combo;
@@ -9,10 +11,40 @@ namespace AddonTemplate.Modes
 {
     public sealed class Combo : ModeBase
     {
+        public static AIHeroClient Player { get { return ObjectManager.Player; } }
         public override bool ShouldBeExecuted()
         {
             // Only execute this mode when the orbwalker is on combo mode
             return Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo);
+        }
+
+        public static void CastR(AIHeroClient target)
+        {
+            if (!SpellManager.R.IsReady())
+                return;
+
+            if (target.HasBuffOfType(BuffType.Invulnerability)
+                                && target.HasBuffOfType(BuffType.SpellShield)
+                                && target.HasBuff("kindredrnodeathbuff") //Kindred Ult
+                                && target.HasBuff("BlitzcrankManaBarrierCD") //Blitz Passive
+                                && target.HasBuff("ManaBarrier") //Blitz Passive
+                                && target.HasBuff("FioraW") //Fiora W
+                                && target.HasBuff("JudicatorIntervention") //Kayle R
+                                && target.HasBuff("UndyingRage") //Trynd R
+                                && target.HasBuff("BardRStasis") //Bard R
+                                && target.HasBuff("ChronoShift") //Zilean R
+                                )
+                return;
+
+
+            if (target.IsValidTarget(SpellManager.R.Range) && !target.IsZombie)
+            {
+                int PassiveCounter = target.GetBuffCount("dariushemo") <= 0 ? 0 : target.GetBuffCount("dariushemo");
+                if (Damages.RDamage(target, PassiveCounter) >= target.Health + Damages.PassiveDmg(target, 1))
+                {
+                    SpellManager.R.Cast(target);
+                }
+            }
         }
 
         public override void Execute()
@@ -50,24 +82,7 @@ namespace AddonTemplate.Modes
 
             if (Settings.UseR && R.IsReady())
             {
-                if (target.IsValidTarget(R.Range) && !target.IsZombie && !target.IsInvulnerable && !target.IsDead)
-                {
-                    int passiveCounter = target.GetBuffCount("dariushemo") <= 0 ? 0 : target.GetBuffCount("dariushemo");
-                    if (!target.HasBuffOfType(BuffType.Invulnerability) && !target.HasBuffOfType(BuffType.SpellShield))
-                    {
-                        if (Damages.RDamage(target, passiveCounter) >=
-                            target.Health + Damages.PassiveDmg(target, 1))
-                        {
-                            if (!target.HasBuffOfType(BuffType.Invulnerability)
-                                && !target.HasBuffOfType(BuffType.SpellShield)
-                                && !target.HasBuff("kindredrnodeathbuff")
-                                && !target.HasUndyingBuff())
-                            {
-                                R.Cast(target);
-                            }
-                        }
-                    }
-                }
+                CastR(target);
             }
         }
     }
