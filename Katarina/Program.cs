@@ -34,7 +34,8 @@ namespace Katarina
         public static Spell.Targeted Ignite;
 
         //Declare the menu
-        private static Menu MiscMenu, KatarinaMenu, ComboMenu, LaneClearMenu, LastHitMenu, HarassAutoharass, KillStealMenu;
+        private static Menu MiscMenu, KatarinaMenu, ComboMenu, LaneClearMenu, LastHitMenu, HarassAutoharass,
+            KillStealMenu, FleeMenu;
 
         private static AIHeroClient target;
         public static bool harassNeedToEBack = false;
@@ -50,6 +51,15 @@ namespace Katarina
             //Creates a SubMenu
             ComboMenu = KatarinaMenu.AddSubMenu("Combo");
             ComboMenu.Add("R.Killable", new CheckBox("Use R if target is killable", false));
+
+            FleeMenu = KatarinaMenu.AddSubMenu("Flee");
+            FleeMenu.Add("JumpToAlly", new CheckBox("Enable jump to ally."));
+            FleeMenu.Add("JumpToDagger", new CheckBox("Enable jump to dagger."));
+            FleeMenu.Add("JumpToAllyMinion", new CheckBox("Enable jump to ally minion."));
+            FleeMenu.Add("JumpToEnemyMinion", new CheckBox("Enable jump to enemy minion.", false));
+            FleeMenu.Add("JumpToMonster", new CheckBox("Enable jump to monster."));
+            FleeMenu.Add("JumpToMonsterHP", new Slider("Enable jump to monster when HP > {0}%", 20, 1, 100));
+            FleeMenu.Add("JumpCursorRange", new Slider("Jump to cursor target detect range. ", 200, 100, 250));
 
             LaneClearMenu = KatarinaMenu.AddSubMenu("Lane Clear");
             LaneClearMenu.Add("Q", new CheckBox("Use Q in lane clear"));
@@ -210,6 +220,10 @@ namespace Katarina
             {
                 Harass();
             }
+            else if (Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Flee))
+            {
+                Flee();
+            }
             else if (!Orbwalker.ActiveModesFlags.Equals(Orbwalker.ActiveModes.Combo))
             {
                 Orbwalker.DisableAttacking = false;
@@ -238,7 +252,9 @@ namespace Katarina
 
             if (HarassAutoharass["AHQ"].Cast<CheckBox>().CurrentValue && !target.Position.IsUnderTurret())
             {
-                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit) || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
+                if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit) ||
+                    Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) ||
+                    Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Flee))
                     return;
 
                 CastQ(target);
@@ -362,6 +378,102 @@ namespace Katarina
                     Orbwalker.DisableMovement = true;
                     Orbwalker.DisableAttacking = true;
                     R.Cast();
+                }
+            }
+        }
+
+        public static bool IsAlly(Vector3 pos)
+        {
+            return EntityManager.Heroes.Allies.Any(a => !a.IsMe && a.Distance(pos) <= FleeMenu["JumpCursorRange"].Cast<Slider>().CurrentValue);
+        }
+        public static bool IsAllyMinion(Vector3 pos)
+        {
+            return EntityManager.MinionsAndMonsters.AlliedMinions.Any(a => a.Distance(pos) <= FleeMenu["JumpCursorRange"].Cast<Slider>().CurrentValue);
+        }
+        public static bool IsEnemyMinion(Vector3 pos)
+        {
+            return EntityManager.MinionsAndMonsters.EnemyMinions.Any(a => a.Distance(pos) <= FleeMenu["JumpCursorRange"].Cast<Slider>().CurrentValue);
+        }
+        public static bool IsMonster(Vector3 pos)
+        {
+            return EntityManager.MinionsAndMonsters.Monsters.Any(a => a.Distance(pos) <= FleeMenu["JumpCursorRange"].Cast<Slider>().CurrentValue);
+        }
+        public static bool IsDagger(Vector3 pos)
+        {
+            return ObjectManager.Get<Obj_AI_Base>().Any(a => (a.Name == "HiddenMinion") && a.IsValid && a.Distance(pos) <= FleeMenu["JumpCursorRange"].Cast<Slider>().CurrentValue);
+        }
+        public static bool IsPlant(Vector3 pos)
+        {
+            return ObjectManager.Get<Obj_AI_Base>().Any(a => a.Name.Contains("Plant") && a.IsValid && a.Distance(pos) <= FleeMenu["JumpCursorRange"].Cast<Slider>().CurrentValue);
+        }
+
+        private static void Flee()
+        {
+            if (!E.IsReady() || GetRBufff())
+                return;
+
+            var mouse = Game.CursorPos;
+            if (IsPlant(mouse))
+            {
+                var target = ObjectManager.Get<Obj_AI_Base>().
+                    Where(a => a.Name.Contains("Plant") && a.IsValid && !a.IsMe && a.IsInRange(a, E.Range) && a.Distance(mouse) <= FleeMenu["JumpCursorRange"].Cast<Slider>().CurrentValue);
+                E.Cast(target.FirstOrDefault().Position);
+                return;
+            }
+
+            if (FleeMenu["JumpToDagger"].Cast<CheckBox>().CurrentValue)
+            {
+                if (IsDagger(mouse))
+                {
+                    var target = ObjectManager.Get<Obj_AI_Base>().
+                        Where(a => (a.Name == "HiddenMinion") && a.IsValid && !a.IsMe && a.IsInRange(a, E.Range) && a.Distance(mouse) <= FleeMenu["JumpCursorRange"].Cast<Slider>().CurrentValue);
+                    E.Cast(target.FirstOrDefault().Position);
+                    return;
+                }
+            }
+
+            if (FleeMenu["JumpToAlly"].Cast<CheckBox>().CurrentValue)
+            {
+                if (IsAlly(mouse))
+                {
+                    var target = EntityManager.Heroes.Allies.
+                        Where(a => !a.IsMe && a.IsInRange(a, E.Range) && a.Distance(mouse) <= FleeMenu["JumpCursorRange"].Cast<Slider>().CurrentValue);
+                    E.Cast(target.FirstOrDefault().Position);
+                    return;
+                }
+            }
+
+            if (FleeMenu["JumpToAllyMinion"].Cast<CheckBox>().CurrentValue)
+            {
+                if (IsAllyMinion(mouse))
+                {
+                    var target = EntityManager.MinionsAndMonsters.AlliedMinions.
+                        Where(a => a.IsInRange(a, E.Range) && a.Distance(mouse) <= FleeMenu["JumpCursorRange"].Cast<Slider>().CurrentValue);
+                    E.Cast(target.FirstOrDefault().Position);
+                    return;
+                }
+            }
+
+            if (FleeMenu["JumpToEnemyMinion"].Cast<CheckBox>().CurrentValue)
+            {
+                if (IsEnemyMinion(mouse))
+                {
+                    var target = EntityManager.MinionsAndMonsters.EnemyMinions.
+                        Where(a => a.IsInRange(a, E.Range) && a.Distance(mouse) <= FleeMenu["JumpCursorRange"].Cast<Slider>().CurrentValue);
+                    E.Cast(target.FirstOrDefault().Position);
+                    return;
+                }
+            }
+
+            if (FleeMenu["JumpToMonster"].Cast<CheckBox>().CurrentValue && 
+                (Player.Instance.HealthPercent >= (float)FleeMenu["JumpToMonsterHP"].Cast<Slider>().CurrentValue))
+            {
+                if (IsMonster(mouse))
+                {
+                    var target = EntityManager.MinionsAndMonsters.Monsters.
+                        Where(a => a.IsInRange(a, E.Range) && a.Distance(mouse) <= FleeMenu["JumpCursorRange"].Cast<Slider>().CurrentValue);
+                    E.Cast(target.FirstOrDefault().Position);
+                    return;
                 }
             }
         }
