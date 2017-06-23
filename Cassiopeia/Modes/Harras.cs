@@ -14,28 +14,17 @@ namespace LightCassiopeia.Carry
 
         public override void Execute()
         {
+            var target = TargetSelector.GetTarget(Q.Range, DamageType.Magical, Player.Instance.Position);
             if (MenuList.Harras.WithQ && Q.IsReady())
-            {
-                var target = TargetSelector.GetTarget(Q.Range, DamageType.Magical, Player.Instance.Position);
-                var qPred = Q.GetPrediction(target);
-                if (qPred.HitChancePercent >= Misc.skillsPredition)
-                    Q.Cast(qPred.CastPosition);
-            }
+                Q.Cast(target.Position);
 
             if (MenuList.Harras.WithW && W.IsReady())
-            {
-                var target = TargetSelector.GetTarget(W.Range, DamageType.Magical, Player.Instance.Position);
-                var wPred = SpellManager.W.GetPrediction(target);
-                if (wPred.HitChancePercent >= Misc.skillsPredition)
-                    W.Cast(wPred.CastPosition);
-            }
+                W.Cast(target.Position);
+
             if (MenuList.Harras.WithE && E.IsReady())
             {
-                foreach (var enemy in EntityManager.Heroes.Enemies.Where(en => en.IsValidTarget(E.Range)))
-                {
-                    if (enemy.HasBuffOfType(BuffType.Poison))
-                        E.Cast(enemy);
-                }
+                if (target.HasBuffOfType(BuffType.Poison))
+                    E.Cast(target);
             }
         }
     }

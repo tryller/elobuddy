@@ -19,26 +19,18 @@ namespace LightCassiopeia.Carry
             //R
             if (MenuList.Combo.WithR && R.IsReady())
             {
-                var rPred = R.GetPrediction(target);
+                foreach (var enemy in ObjectManager.Get<AIHeroClient>().Where(enemy => enemy.Distance(Player.Instance.Position) <= R.Range))
                 {
-                    foreach (var enemy in ObjectManager.Get<AIHeroClient>().Where(enemy => enemy.Distance(Player.Instance.Position) <= R.Range))
+                    if (enemy.CountEnemyChampionsInRange(R.Range) >= MenuList.Combo.CountEnemiesInR)
                     {
-                        if (enemy.CountEnemyChampionsInRange(R.Range) >= MenuList.Combo.CountEnemiesInR &&
-                            rPred.HitChancePercent >= MenuList.Misc.skillsPredition && enemy.IsFacing(Player.Instance))
-                        {
-                            R.Cast(rPred.CastPosition);
-                        }
+                        R.Cast(enemy.Position);
                     }
                 }
             }
 
             //Q
             if (MenuList.Combo.WithQ && Q.IsReady() && target.IsValidTarget(Q.Range))
-            {
-                var qPred = Q.GetPrediction(target);
-                if (qPred.HitChancePercent >= Misc.skillsPredition)
-                    Q.Cast(qPred.CastPosition);
-            }
+                Q.Cast(target.Position);
 
             //E
             if (MenuList.Combo.WithE && E.IsReady() && target.IsValidTarget(E.Range))
@@ -49,11 +41,7 @@ namespace LightCassiopeia.Carry
 
             //W
             if (MenuList.Combo.WithW && W.IsReady() && target.IsValidTarget(W.Range))
-            {
-                var wPred = SpellManager.W.GetPrediction(target);
-                if (wPred.HitChancePercent >= MenuList.Misc.skillsPredition)
-                    SpellManager.W.Cast(wPred.CastPosition);
-            }
+                W.Cast(target.Position);
         }
     }
 }
